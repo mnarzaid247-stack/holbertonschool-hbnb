@@ -1,73 +1,66 @@
-# HBnB Evolution – High-Level Package Diagram
+## High-Level Package Diagram (Text-Based)
 
-## Architecture Overview
++-----------------------------------------------------------+
+| Presentation Layer (Services / API)                        |
+|-----------------------------------------------------------|
+| - API Controllers / Routes                                 |
+| - Request/Response handling                                |
++---------------------------+-------------------------------+
+                            |
+                            | calls
+                            v
++-----------------------------------------------------------+
+| Facade (HBnBFacade)                                        |
+|-----------------------------------------------------------|
+| - Unified interface for the API layer                      |
+| - Delegates operations to the correct service              |
+|   (User / Place / Review / Amenity)                        |
++---------------------------+-------------------------------+
+                            |
+                            | delegates
+                            v
++-----------------------------------------------------------+
+| Business Logic Layer (Models / Core)                       |
+|-----------------------------------------------------------|
+| Domain Models:                                              |
+| - User(first_name, last_name, email, password, is_admin)   |
+| - Place(title, description, price, latitude, longitude)    |
+| - Review(rating, comment, user_id, place_id)               |
+| - Amenity(name, description)                               |
+|                                                           |
+| Services / Managers:                                       |
+| - UserService, PlaceService, ReviewService, AmenityService |
++---------------------------+-------------------------------+
+                            |
+                            | CRUD / queries
+                            v
++-----------------------------------------------------------+
+| Persistence Layer (Storage)                                |
+|-----------------------------------------------------------|
+| - Repositories / DAO                                       |
+|   UserRepository, PlaceRepository, ReviewRepository,       |
+|   AmenityRepository                                        |
+| - Database (implemented later in Part 3)                   |
++-----------------------------------------------------------+
 
-The HBnB application follows a **three-layer architecture**:
+## Notes (Responsibilities)
 
-1. Presentation Layer  
-2. Business Logic Layer  
-3. Persistence Layer  
+- Presentation Layer:
+  Receives HTTP requests and returns responses. It does not implement business rules.
+  It only calls HBnBFacade.
 
-Communication between layers is handled through a **Facade pattern**, which provides a unified interface.
+- Facade (HBnBFacade):
+  A single entry point for the Presentation layer. It routes each action to the
+  correct service in the Business Logic layer.
 
----
+- Business Logic Layer:
+  Implements rules and validation for the core entities (User, Place, Review, Amenity).
+  It decides what must be saved or fetched and calls repositories to do it.
 
-## High-Level Package Diagram
-
-```mermaid
-flowchart LR
-  subgraph P[Presentation Layer (Services / API)]
-    API[API Controllers / Routes]
-  end
-
-  subgraph F[Facade]
-    FAC[HBnBFacade\n(Unified Interface)]
-  end
-
-  subgraph B[Business Logic Layer (Models / Core)]
-    SVC[Services / Managers\n(User, Place, Review, Amenity)]
-    DM[Domain Models\nUser, Place, Review, Amenity]
-  end
-
-  subgraph D[Persistence Layer (Storage)]
-    REPO[Repositories / DAO]
-    DB[(Database)]
-  end
-
-  API --> FAC
-  FAC --> SVC
-  SVC --> DM
-  SVC --> REPO
-  REPO --> DB
-
-That’s three backticks to close the diagram block.
-
----
-
-## 2️⃣ Add the explanation section (required)
-
-Under the diagram, paste this:
-
-```markdown
----
-
-## Layer Responsibilities
-
-### Presentation Layer
-Handles user interaction through API endpoints. It receives requests and forwards them to the facade without containing business rules.
-
-### Facade
-Provides a unified interface (HBnBFacade) for all operations. It simplifies communication by preventing the Presentation Layer from directly interacting with multiple services.
-
-### Business Logic Layer
-Contains core models (User, Place, Review, Amenity) and application rules. Services manage operations such as creating places, registering users, and handling reviews.
-
-### Persistence Layer
-Responsible for storing and retrieving data. Repositories/DAO abstract database operations so that the business logic does not depend on database details.
-
----
+- Persistence Layer:
+  Handles storage and retrieval through repositories/DAO. It hides database details
+  from the business logic.
 
 ## Data Flow
 
-API Request → Facade → Business Services → Repositories → Database  
-Response returns through the same path in reverse.
+Client → API/Controllers → HBnBFacade → Services/Models → Repositories/DB → back to Client
