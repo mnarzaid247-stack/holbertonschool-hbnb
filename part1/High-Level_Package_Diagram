@@ -1,5 +1,5 @@
 ## High-Level Package Diagram (Text-Based)
-
+```mermaid
 flowchart TD
 
 P["<<Layer>><br/><b>Presentation Layer</b><br/>- Services<br/>- API Endpoints<br/>- Controllers"]
@@ -8,7 +8,7 @@ D["<<Layer>><br/><b>Persistence Layer</b><br/>- Repositories<br/>- Database Acce
 
 P -->|Facade Pattern| B
 B -->|Database Operations| D
-
+```
 
 ## Notes (Responsibilities)
 - Presentation Layer (Services, API)
@@ -33,4 +33,4 @@ The persistence layer hides database implementation details from the business lo
 
 ## Data Flow
 
-Client → Presentation Layer → HBnBFacade → Business Logic → Persistence Layer �→ back to Client
+Client -> Presentation Layer -> HBnBFacade -> Business Logic Layer -> Persistence Layer -> back to Client
