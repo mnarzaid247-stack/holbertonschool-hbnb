@@ -33,4 +33,4 @@ The persistence layer hides database implementation details from the business lo
 
 ## Data Flow
 
-Client -> Presentation Layer -> HBnBFacade -> Business Logic Layer -> Persistence Layer -> back to Client
+Client -> Presentation Layer -> Business Logic Layer -> Persistence Layer -> back to Client
