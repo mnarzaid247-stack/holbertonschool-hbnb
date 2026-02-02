@@ -2,7 +2,7 @@
 ```mermaid
 flowchart TD
 
-P["<<Layer>><br/><b>Presentation Layer</b><br/>- Services<br/>- API Endpoints<br/>- Controllers"]
+P["&lt;&lt;Layer&gt;&gt;<br/><b>Presentation Layer</b><br/>- Services<br/>- API Endpoints<br/>- Controllers"]
 B["<<Layer>><br/><b>Business Logic Layer</b><br/>- HBnBFacade<br/>- User<br/>- Place<br/>- Review<br/>- Amenity"]
 D["<<Layer>><br/><b>Persistence Layer</b><br/>- Repositories<br/>- Database Access"]
 
