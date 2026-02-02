@@ -1,0 +1,36 @@
+## High-Level Package Diagram (Text-Based)
+
+flowchart TD
+
+P["<<Layer>><br/><b>Presentation Layer</b><br/>- Services<br/>- API Endpoints<br/>- Controllers"]
+B["<<Layer>><br/><b>Business Logic Layer</b><br/>- HBnBFacade<br/>- User<br/>- Place<br/>- Review<br/>- Amenity"]
+D["<<Layer>><br/><b>Persistence Layer</b><br/>- Repositories<br/>- Database Access"]
+
+P -->|Facade Pattern| B
+B -->|Database Operations| D
+
+
+## Notes (Responsibilities)
+- Presentation Layer (Services, API)
+
+This layer handles interaction with the outside world.
+It receives client requests through API endpoints and controllers, processes request/response formatting, and forwards actions to the system through the facade.
+It does not contain business rules.
+
+- Business Logic Layer (Models)
+
+This layer contains the core logic of the application.
+It defines the main domain entities (User, Place, Review, Amenity) and enforces validation and business rules.
+The HBnBFacade acts as a unified interface used by the Presentation Layer to access the system’s functionality.
+This layer determines what operations must occur and communicates with the persistence layer to store or retrieve data.
+
+- Persistence Layer
+
+This layer is responsible for data storage and retrieval.
+It uses repositories or data access objects (DAO) to interact with the database.
+The persistence layer hides database implementation details from the business logic.
+
+
+## Data Flow
+
+Client → Presentation Layer → HBnBFacade → Business Logic → Persistence Layer �→ back to Client
