@@ -3,8 +3,8 @@
 flowchart TD
 
 P["&lt;&lt;Layer&gt;&gt;<br/><b>Presentation Layer</b><br/>- Services<br/>- API Endpoints<br/>- Controllers"]
-B["<<Layer>><br/><b>Business Logic Layer</b><br/>- HBnBFacade<br/>- User<br/>- Place<br/>- Review<br/>- Amenity"]
-D["<<Layer>><br/><b>Persistence Layer</b><br/>- Repositories<br/>- Database Access"]
+B["&lt;&lt;Layer&gt;&gt;<br/><b>Business Logic Layer</b><br/>- HBnBFacade<br/>- User<br/>- Place<br/>- Review<br/>- Amenity"]
+D["&lt;&lt;Layer&gt;&gt;<br/><b>Persistence Layer</b><br/>- Repositories<br/>- Database Access"]
 
 P -->|Facade Pattern| B
 B -->|Database Operations| D
