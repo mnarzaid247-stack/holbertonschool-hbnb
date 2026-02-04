@@ -4,109 +4,101 @@ autonumber
 participant Client as User/Client
 participant API as API Controller
 participant Facade as HBnBFacade
-participant UserModel as User Model
 participant UserRepo as User Repository
 participant DB as Database
 
-Client->>API: POST /users {first_name,last_name,email,password}
+Client->>API: POST /users
 API->>API: Validate request body
-API->>Facade: register_user(dto)
+API->>Facade: register_user()
 
-Facade->>UserRepo: find_by_email(email)
-UserRepo->>DB: SELECT user WHERE email=...
+Facade->>UserRepo: find_by_email()
+UserRepo->>DB: SELECT user
 DB-->>UserRepo: result
 UserRepo-->>Facade: result
 
 alt Email exists
 Facade-->>API: 409 Conflict
-API-->>Client: Error response
+API-->>Client: Error
 else Email not found
-Facade->>UserModel: hash password
 Facade->>UserRepo: create(user)
 UserRepo->>DB: INSERT user
 DB-->>UserRepo: created id
-UserRepo-->>Facade: user created
+UserRepo-->>Facade: success
 Facade-->>API: 201 Created
-API-->>Client: Success response
+API-->>Client: Success
 end
 sequenceDiagram
 autonumber
-participant Client as User/Client
+participant Client as User
 participant API as API Controller
 participant Auth as Auth Middleware
 participant Facade as HBnBFacade
-participant PlaceModel as Place Model
 participant PlaceRepo as Place Repository
 participant DB as Database
 
-Client->>API: POST /places (token)
+Client->>API: POST /places
 API->>Auth: verify_token()
 Auth-->>API: user_id
 
 alt Invalid token
 API-->>Client: 401 Unauthorized
 else Valid token
-API->>Facade: create_place(user_id, data)
-Facade->>PlaceModel: validate rules
+API->>Facade: create_place()
 Facade->>PlaceRepo: save(place)
 PlaceRepo->>DB: INSERT place
 DB-->>PlaceRepo: created id
-PlaceRepo-->>Facade: place created
+PlaceRepo-->>Facade: success
 Facade-->>API: 201 Created
-API-->>Client: Success response
+API-->>Client: Success
 end
 sequenceDiagram
 autonumber
-participant Client as User/Client
+participant Client as User
 participant API as API Controller
 participant Auth as Auth Middleware
 participant Facade as HBnBFacade
-participant ReviewModel as Review Model
 participant PlaceRepo as Place Repository
 participant ReviewRepo as Review Repository
 participant DB as Database
 
-Client->>API: POST /places/{id}/reviews
+Client->>API: POST /reviews
 API->>Auth: verify_token()
 Auth-->>API: user_id
 
 alt Invalid token
 API-->>Client: 401 Unauthorized
 else Valid token
-API->>Facade: submit_review(user_id, place_id, data)
-Facade->>PlaceRepo: find place
+API->>Facade: submit_review()
+Facade->>PlaceRepo: find_place()
 PlaceRepo->>DB: SELECT place
 DB-->>PlaceRepo: result
 PlaceRepo-->>Facade: result
 
 alt Place not found
 Facade-->>API: 404 Not Found
-API-->>Client: Error response
+API-->>Client: Error
 else Place exists
-Facade->>ReviewModel: validate rating
 Facade->>ReviewRepo: save(review)
 ReviewRepo->>DB: INSERT review
 DB-->>ReviewRepo: created id
-ReviewRepo-->>Facade: review created
+ReviewRepo-->>Facade: success
 Facade-->>API: 201 Created
-API-->>Client: Success response
+API-->>Client: Success
 end
 end
 sequenceDiagram
 autonumber
-participant Client as User/Client
+participant Client as User
 participant API as API Controller
 participant Facade as HBnBFacade
 participant PlaceRepo as Place Repository
 participant DB as Database
 
-Client->>API: GET /places?filters
-API->>API: Validate query params
-API->>Facade: list_places(filters)
-
-Facade->>PlaceRepo: search(filters)
+Client->>API: GET /places
+API->>Facade: list_places()
+Facade->>PlaceRepo: search()
 PlaceRepo->>DB: SELECT places
-DB-->>PlaceRepo: places list
-PlaceRepo-->>Facade: places list
+DB-->>PlaceRepo: results
+PlaceRepo-->>Facade: results
 Facade-->>API: 200 OK
 API-->>Client: Return places
