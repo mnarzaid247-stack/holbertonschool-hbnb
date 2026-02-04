@@ -1,3 +1,12 @@
+# Sequence Diagrams for API Calls – HBnB Evolution
+
+This document shows how API requests move through the 3-layer architecture:
+Presentation → Business Logic → Persistence.
+
+---
+
+## 1) User Registration — POST /users
+
 ```mermaid
 sequenceDiagram
 autonumber
@@ -27,6 +36,13 @@ UserRepo-->>Facade: success
 Facade-->>API: 201 Created
 API-->>Client: Success
 end
+```
+
+---
+
+## 2) Place Creation — POST /places
+
+```mermaid
 sequenceDiagram
 autonumber
 participant Client as User
@@ -51,6 +67,13 @@ PlaceRepo-->>Facade: success
 Facade-->>API: 201 Created
 API-->>Client: Success
 end
+```
+
+---
+
+## 3) Review Submission — POST /reviews
+
+```mermaid
 sequenceDiagram
 autonumber
 participant Client as User
@@ -86,6 +109,13 @@ Facade-->>API: 201 Created
 API-->>Client: Success
 end
 end
+```
+
+---
+
+## 4) Fetch Places — GET /places
+
+```mermaid
 sequenceDiagram
 autonumber
 participant Client as User
@@ -102,3 +132,5 @@ DB-->>PlaceRepo: results
 PlaceRepo-->>Facade: results
 Facade-->>API: 200 OK
 API-->>Client: Return places
+```
+
