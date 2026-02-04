@@ -1,3 +1,8 @@
+```mermaid
+sequenceDiagram
+participant A
+participant B
+A->>B: test
 sequenceDiagram
 autonumber
 participant Client as User/Client
