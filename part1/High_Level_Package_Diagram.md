@@ -1,4 +1,5 @@
-## High-Level Package Diagram
+# High-Level Package Diagram
+
 ```mermaid
 flowchart TD
 
@@ -11,6 +12,7 @@ B -->|Database Operations| D
 ```
 
 ## Notes (Responsibilities)
+
 - Presentation Layer (Services, API)
 
 This layer handles interaction with the outside world.
@@ -29,7 +31,6 @@ This layer determines what operations must occur and communicates with the persi
 This layer is responsible for data storage and retrieval.
 It uses repositories or data access objects (DAO) to interact with the database.
 The persistence layer hides database implementation details from the business logic.
-
 
 ## Data Flow
 
