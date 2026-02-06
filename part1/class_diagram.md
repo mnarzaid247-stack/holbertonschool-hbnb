@@ -9,7 +9,7 @@ This diagram shows the main building blocks of the HBnB application - a property
 ```mermaid
 classDiagram
         class User {
-                -id UUID
+                -user_id UUID
                 +created_at DateTime
                 +updated_at DateTime
                 -first_name string
@@ -17,13 +17,14 @@ classDiagram
                 -email string
                 -password string
                 -is_admin bool
-                +register()
+                +register_user()
                 +updateProfile()
                 +deleteProfile()
         }
 
         class Place {
-                -id UUID
+                -place_id UUID
+                -user_id UUID
                 +created_at DateTime
                 +updated_at DateTime
                 -title string
@@ -38,7 +39,7 @@ classDiagram
         }
 
         class Amenity {
-                -id UUID
+                -amenity_id UUID
                 +created_at DateTime
                 +updated_at DateTime
                 -name string
@@ -51,7 +52,9 @@ classDiagram
                 %% Note: many-to-many between Place and Amenity is shown directly below
 
         class Review {
-                -id UUID
+                -review_id UUID
+                -user_id UUID
+                -place_id UUID
                 +created_at DateTime
                 +updated_at DateTime
                 -rating int
