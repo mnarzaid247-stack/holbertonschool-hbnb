@@ -20,6 +20,7 @@
 ### What is this document?
 
 This is your **complete guide** to understanding how the HBnB project works. Think of it as a map that shows you:
+
 - How different parts of the app connect
 - What each component does
 - How data flows through the system
@@ -63,6 +64,7 @@ We split the app into **three main layers** to keep things organized:
 ## High-Level Architecture
 
 ### System Overview
+
 ```mermaid
 flowchart TD
 
@@ -77,6 +79,7 @@ B -->|Database Operations| D
 ### What Each Layer Does
 
 #### Presentation Layer
+
 **Job:** Talk to the outside world
 
 - Receives requests from users
@@ -85,6 +88,7 @@ B -->|Database Operations| D
 - Handles login tokens
 
 #### Business Logic Layer
+
 **Job:** Make decisions
 
 - Manages Users, Places, Reviews, and Amenities
@@ -92,6 +96,7 @@ B -->|Database Operations| D
 - Coordinates everything through the **HBnBFacade**
 
 #### Persistence Layer
+
 **Job:** Store and retrieve data
 
 - Saves data to the database
@@ -118,6 +123,7 @@ Instead of this (messy):          We do this (clean):
 ```
 
 **Benefits:**
+
 - One entry point for all operations
 - Easier to understand
 - Easier to change later
@@ -130,69 +136,74 @@ Instead of this (messy):          We do this (clean):
 
 ```mermaid
 classDiagram
-    class User {
-        -user_id UUID
-        +created_at DateTime
-        +updated_at DateTime
-        -first_name string
-        -last_name string
-        -email string
-        -password string
-        -is_admin bool
-        +register()
-        +updateProfile()
-        +deleteProfile()
-    }
+        class User {
+                -user_id UUID
+                +created_at DateTime
+                +updated_at DateTime
+                -first_name string
+                -last_name string
+                -email string
+                -password string
+                -is_admin bool
+                +register_user()
+                +updateProfile()
+                +deleteProfile()
+        }
 
-    class Place {
-        -place_id UUID
-        -user_id UUID
-        +created_at DateTime
-        +updated_at DateTime
-        -title string
-        -description string
-        -price int
-        -latitude float
-        -longitude float
-        -is_available bool
-        +createPlace()
-        +updatePlace()
-        +deletePlace()
-    }
+        class Place {
+                -place_id UUID
+                -user_id UUID
+                +created_at DateTime
+                +updated_at DateTime
+                -title string
+                -description string
+                -price int
+                -latitude float
+                -longitude float
+                -is_available bool
+                +createPlace()
+                +updatePlace()
+                +deletePlace()
+        }
 
-    class Amenity {
-        -amenity_id UUID
-        +created_at DateTime
-        +updated_at DateTime
-        -name string
-        -description string
-        +createAmenity()
-        +updateAmenity()
-        +deleteAmenity()
-    }
+        class Amenity {
+                -amenity_id UUID
+                +created_at DateTime
+                +updated_at DateTime
+                -name string
+                -description string
+                +createAmenity()
+                +updateAmenity()
+                +deleteAmenity()
+        }
 
-    class Review {
-        -review_id UUID
-        -user_id UUID
-        -place_id UUID
-        +created_at DateTime
-        +updated_at DateTime
-        -rating int
-        -comment string
-        +createReview()
-        +updateReview()
-        +deleteReview()
-    }
+                %% Note: many-to-many between Place and Amenity is shown directly below
 
-    User "1" <-- "0..*" Place : owns
-    Place "1" <-- "0..*" Review : has reviews
-    User "1" <-- "0..*" Review : authored by
-    Place "1" -- "0..*" Amenity : includes
+        class Review {
+                -review_id UUID
+                -user_id UUID
+                -place_id UUID
+                +created_at DateTime
+                +updated_at DateTime
+                -rating int
+                -comment string
+                +createReview()
+                +updateReview()
+                +deleteReview()
+        }
+
+        %% Relationships
+    User "1" *-- "0..*" Place : owns
+    User "1" *-- "0..*" Review : writes
+    Place "1" *-- "0..*" Review : has
+    Place "0..*" --> "0..*" Amenity : includes
+
 ```
 
 ### Our Four Main Entities
 
 #### User
+>
 > Someone who uses the platform (owner or guest)
 
 | Attribute | Type | What it stores |
@@ -207,6 +218,7 @@ classDiagram
 | updated_at | DateTime | Last profile update |
 
 **Rules:**
+
 - Email must be unique
 - Password gets hashed (never stored as plain text!)
 - Name fields are required
@@ -214,6 +226,7 @@ classDiagram
 ---
 
 #### Place
+>
 > A property listed for rent
 
 | Attribute | Type | What it stores |
@@ -227,13 +240,16 @@ classDiagram
 | is_available | bool | Can be booked? |
 
 **Rules:**
-- Must have an owner
+
+- Must have exactly one owner (User)
+- A place cannot exist without its owner
 - Price must be positive
 - Coordinates must be valid
 
 ---
 
 #### Review
+>
 > Feedback about a place
 
 | Attribute | Type | What it stores |
@@ -245,13 +261,15 @@ classDiagram
 | comment | string | Written feedback |
 
 **Rules:**
-- Must link to existing user AND place
+
+- Reviews cannot exist without both a user and a place
 - Rating between 1-5
 - One review per user per place
 
 ---
 
 #### Amenity
+>
 > Features a place offers (WiFi, Pool, etc.)
 
 | Attribute | Type | What it stores |
@@ -261,6 +279,7 @@ classDiagram
 | description | string | More details |
 
 **Rules:**
+
 - Names should be unique
 - Can be used by multiple places
 
@@ -270,10 +289,18 @@ classDiagram
 
 | Relationship | Meaning |
 |--------------|---------|
-| User → Place | One user can own many places |
-| User → Review | One user can write many reviews |
-| Place → Review | One place can have many reviews |
-| Place ↔ Amenity | Places can share amenities |
+| User → Place | A user owns places; places depend on their owner |
+| User → Review | A user authors reviews; reviews depend on the user |
+| Place → Review | Reviews belong to a place and cannot exist alone |
+| Place ↔ Amenity | Places can share amenities; amenities exist independently |
+
+---
+Lifecycle & Ownership Rules
+
+- Users own Places; deleting a user removes their places
+- Places own Reviews; deleting a place removes its reviews
+- Users own Reviews; deleting a user removes their reviews
+- Amenities are independent and can be shared across places
 
 ---
 
@@ -558,7 +585,6 @@ All business decisions are centralized in the HBnBFacade, while repositories
 encapsulate persistence operations. This separation improves maintainability
 and keeps responsibilities clear across the system.
 
-
 ### Error Response Summary
 
 | Code | Meaning | When it happens |
@@ -589,6 +615,7 @@ and keeps responsibilities clear across the system.
 ### Why UUIDs instead of numbers?
 
 Regular IDs (1, 2, 3...) have problems:
+
 - Reveal how many users you have
 - Easy to guess other user IDs
 - Hard to merge databases

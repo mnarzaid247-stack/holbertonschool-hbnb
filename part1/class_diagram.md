@@ -64,63 +64,36 @@ classDiagram
                 +deleteReview()
         }
 
-        %% Relationships with explicit cardinality
-        User "1" <-- "0..*" Place : owns
-        Place "1" <-- "0..*" Review : "has reviews"
-        User "1" <-- "0..*" Review : "authored by"
-
-                %% Conceptual direct one-to-many between Place and Amenity
-                Place "1" -- "0..*" Amenity : includes
+        %% Relationships
+    User "1" *-- "0..*" Place : owns
+    User "1" *-- "0..*" Review : writes
+    Place "1" *-- "0..*" Review : has
+    Place "0..*" --> "0..*" Amenity : includes
 
 ```
 
 ## Explanation
 
-This class diagram clarifies classes, attribute names, and relationships used in the HBnB model. Key points:
+This class diagram summarizes the core entities and relationships used in the HBnB business logic layer. It focuses on how users, places, reviews, and amenities are structured and how they interact.
 
-## Classes at a Glance
+### Overview of Classes
 
-| Class | Purpose |
-|-------|---------|
-| **User** | People who use the app (Owners & guests) |
-| **Place** | Properties available for rent |
-| **Review** | Feedback left by guests |
-| **Amenity** | Features a place offers (WiFi, Pool, etc.) |
+| Class | Description |
+|------|-------------|
+| **User** | Represents a platform user (owner or guest) |
+| **Place** | A property listed for rent |
+| **Review** | Feedback written by users about places |
+| **Amenity** | Features that can be shared across places |
 
----
+### Relationship Summary
 
-- User
-  - Represents an account in the system.
-  - Primary key: `id` (UUID). Timestamps `created_at` and `updated_at` are included for auditing.
-  - A single User can own zero or many Places (one-to-many).
+- A **User** can own multiple **Places**, and each Place belongs to exactly one User.
+- A **User** can write multiple **Reviews**, and each Review is authored by one User.
+- A **Place** can have multiple **Reviews**, and each Review refers to one Place.
+- **Places** and **Amenities** have a many-to-many association, allowing amenities to be shared across multiple places.
 
-- Place
-  - Represents a rentable listing (property).
-  - Primary key: `id` (UUID). Includes location (latitude/longitude), price and availability flag.
-  - Each Place is owned by exactly one User; a User may own multiple Places.
-  - A Place can have many Reviews.
+### Key Takeaways
 
-- Review
-  - Represents feedback left by a User about a Place.
-  - Each Review is authored by one User and belongs to one Place. Both User and Place can have zero or many Reviews.
-
-- Amenity
-  - Reusable facility/feature (e.g., WiFi, Air conditioning).
-  - Amenities are linked to Places in a one-to-many relationship (diagram shows a conceptual direct association).
-
----
-
-| Relationship | Type | Description |
-| -------------- | ------ | ------------- |
-| User → Place | 1 to Many | One user can own multiple places |
-| User → Review | 1 to Many | One user can write multiple reviews |
-| Place → Review | 1 to Many | One place can have multiple reviews |
-| Place → Amenity | 1 to Many | One place can have multiple amenities |
-
----
-
-## Quick Summary
-
-- **Users** create **Places** (listings)
-- **Users** write **Reviews** about **Places**
-- **Places** include **Amenities** (features)
+- **Places** and **Reviews** depend on their owning entities for their lifecycle.
+- **Amenities** exist independently and can be reused by multiple places.
+- The diagram captures ownership, authorship, and shared features at the business logic level.
