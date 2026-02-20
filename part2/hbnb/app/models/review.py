@@ -22,3 +22,11 @@ class Review(BaseModel):
 
         if self.rating < 1 or self.rating > 5:
             raise ValueError("rating must be between 1 and 5")
+
+
+    def update(self, data):
+        for k, v in data.items():
+            if hasattr(self, k):
+                setattr(self, k, v)
+        self.validate()
+        self.save()
