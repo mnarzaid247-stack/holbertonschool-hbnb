@@ -23,6 +23,18 @@ user_model = api.model(
     },
 )
 
+# (optional) review model for swagger (used in /places/<place_id>/reviews responses)
+review_model = api.model(
+    "PlaceReview",
+    {
+        "id": fields.String(description="Review ID"),
+        "text": fields.String(description="Text of the review"),
+        "rating": fields.Integer(description="Rating of the place (1-5)"),
+        "user_id": fields.String(description="ID of the user"),
+        "place_id": fields.String(description="ID of the place"),
+    },
+)
+
 # input model
 place_model = api.model(
     "Place",
@@ -42,6 +54,7 @@ place_model = api.model(
 
 def place_to_dict(place):
     owner = facade.get_user(place.owner_id) if getattr(place, "owner_id", None) else None
+
     amenities = []
     for aid in getattr(place, "amenity_ids", []) or []:
         a = facade.get_amenity(aid)
@@ -75,6 +88,7 @@ class PlaceList(Resource):
     @api.response(201, "Place successfully created")
     @api.response(400, "Invalid input data")
     @api.response(404, "Owner not found")
+    @api.response(404, "Amenity not found")
     def post(self):
         """Register a new place"""
         place_data = api.payload
@@ -100,7 +114,10 @@ class PlaceList(Resource):
     def get(self):
         """Retrieve a list of all places"""
         places = facade.get_all_places()
-        return [{"id": p.id, "title": p.title, "latitude": p.latitude, "longitude": p.longitude} for p in places], 200
+        return [
+            {"id": p.id, "title": p.title, "latitude": p.latitude, "longitude": p.longitude}
+            for p in places
+        ], 200
 
 
 @api.route("/<place_id>")
@@ -117,6 +134,8 @@ class PlaceResource(Resource):
     @api.expect(place_model, validate=True)
     @api.response(200, "Place updated successfully")
     @api.response(404, "Place not found")
+    @api.response(404, "Owner not found")
+    @api.response(404, "Amenity not found")
     @api.response(400, "Invalid input data")
     def put(self, place_id):
         """Update a place's information"""
@@ -148,12 +167,16 @@ class PlaceResource(Resource):
 class PlaceReviewList(Resource):
     @api.response(200, "List of reviews for the place retrieved successfully")
     @api.response(404, "Place not found")
+    @api.response(400, "Invalid input data")
     def get(self, place_id):
         """Get all reviews for a specific place"""
         place = facade.get_place(place_id)
         if not place:
             return {"error": "Place not found"}, 404
 
-        reviews = facade.get_reviews_by_place(place_id)
-        return [{"id": r.id, "text": r.text, "rating": r.rating} for r in reviews], 200
+        try:
+            reviews = facade.get_reviews_by_place(place_id)
+        except (ValueError, TypeError) as e:
+            return {"error": "Invalid input data", "details": str(e)}, 400
 
+        return [{"id": r.id, "text": r.text, "rating": r.rating} for r in reviews], 200
