@@ -142,3 +142,18 @@ class PlaceResource(Resource):
             return {"error": "Place not found"}, 404
 
         return place_to_dict(updated), 200
+
+
+@api.route("/<place_id>/reviews")
+class PlaceReviewList(Resource):
+    @api.response(200, "List of reviews for the place retrieved successfully")
+    @api.response(404, "Place not found")
+    def get(self, place_id):
+        """Get all reviews for a specific place"""
+        place = facade.get_place(place_id)
+        if not place:
+            return {"error": "Place not found"}, 404
+
+        reviews = facade.get_reviews_by_place(place_id)
+        return [{"id": r.id, "text": r.text, "rating": r.rating} for r in reviews], 200
+
