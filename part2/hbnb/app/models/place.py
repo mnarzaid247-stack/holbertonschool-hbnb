@@ -34,3 +34,10 @@ class Place(BaseModel):
             if self.longitude < -180 or self.longitude > 180:
                 raise ValueError("invalid longitude")
 
+    def update(self, data):
+        for k, v in data.items():
+            if hasattr(self, k):
+                setattr(self, k, v)
+        self.validate()
+        self.save()
+
