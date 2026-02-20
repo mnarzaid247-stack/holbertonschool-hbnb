@@ -3,6 +3,7 @@ from app.persistence.repository import InMemoryRepository
 from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
+from app.models.review import Review
 
 
 class HBnBFacade:
@@ -10,8 +11,9 @@ class HBnBFacade:
         self.user_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
+        self.review_repo = InMemoryRepository()
 
-    # -------- Users --------
+    # ---------- Users ----------
     def create_user(self, user_data):
         user = User(**user_data)
         self.user_repo.add(user)
@@ -33,7 +35,7 @@ class HBnBFacade:
         self.user_repo.update(user_id, user_data)
         return self.user_repo.get(user_id)
 
-    # -------- Amenities --------
+    # ---------- Amenities ----------
     def create_amenity(self, amenity_data):
         amenity = Amenity(**amenity_data)
         self.amenity_repo.add(amenity)
@@ -52,9 +54,8 @@ class HBnBFacade:
         self.amenity_repo.update(amenity_id, amenity_data)
         return self.amenity_repo.get(amenity_id)
 
-    # -------- Places --------
+    # ---------- Places ----------
     def create_place(self, place_data):
-        # Basic relationship integrity checks
         owner_id = place_data.get("owner_id")
         if not owner_id or not self.get_user(owner_id):
             raise ValueError("owner_id does not reference an existing user")
@@ -87,12 +88,10 @@ class HBnBFacade:
         if not place:
             return None
 
-        # If owner_id is updated, validate
         if "owner_id" in place_data:
             if not self.get_user(place_data["owner_id"]):
                 raise ValueError("owner_id does not reference an existing user")
 
-        # If amenity_ids updated, validate
         if "amenity_ids" in place_data:
             for aid in (place_data.get("amenity_ids") or []):
                 if not self.get_amenity(aid):
@@ -100,3 +99,58 @@ class HBnBFacade:
 
         self.place_repo.update(place_id, place_data)
         return self.place_repo.get(place_id)
+
+    # ---------- Reviews ----------
+    def create_review(self, review_data):
+        user_id = review_data.get("user_id")
+        place_id = review_data.get("place_id")
+
+        if not user_id or not self.get_user(user_id):
+            raise ValueError("user_id does not reference an existing user")
+
+        if not place_id or not self.get_place(place_id):
+            raise ValueError("place_id does not reference an existing place")
+
+        review = Review(
+            text=review_data.get("text"),
+            rating=review_data.get("rating"),
+            user_id=user_id,
+            place_id=place_id,
+        )
+        self.review_repo.add(review)
+        return review
+
+    def get_review(self, review_id):
+        return self.review_repo.get(review_id)
+
+    def get_all_reviews(self):
+        return self.review_repo.get_all()
+
+    def get_reviews_by_place(self, place_id):
+        return [r for r in self.review_repo.get_all() if r.place_id == place_id]
+
+    def update_review(self, review_id, review_data):
+        review = self.review_repo.get(review_id)
+        if not review:
+            return None
+
+        # do NOT allow changing relationships in update (keeps it simple + safe)
+        if "user_id" in review_data or "place_id" in review_data:
+            raise ValueError("Cannot update user_id or place_id")
+
+        # validate rating/text using Review.validate() by setting then validating
+        if "text" in review_data:
+            review.text = review_data["text"]
+        if "rating" in review_data:
+            review.rating = review_data["rating"]
+
+        review.validate()
+        review.save()
+        return review
+
+    def delete_review(self, review_id):
+        review = self.review_repo.get(review_id)
+        if not review:
+            return False
+        self.review_repo.delete(review_id)
+        return True
