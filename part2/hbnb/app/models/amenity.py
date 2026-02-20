@@ -13,3 +13,11 @@ class Amenity(BaseModel):
             raise ValueError("name cannot be empty")
         if len(self.name) > 50:
             raise ValueError("name too long")
+
+    def update(self, data):
+        for k, v in data.items():
+            if hasattr(self, k):
+                setattr(self, k, v)
+        self.validate()
+        self.save()
+
