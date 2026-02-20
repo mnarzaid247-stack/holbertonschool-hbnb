@@ -10,7 +10,7 @@ def create_app():
         version='1.0',
         title='HBnB API',
         description='HBnB Application API',
-        doc='app/v1/'
+        doc='/api/v1/'
     )
     api.add_namespace(users_ns, path="/api/v1/users")
     api.add_namespace(amenities_ns, path="/api/v1/amenities")
