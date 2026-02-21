@@ -51,9 +51,9 @@ hbnb/
 | Layer | Purpose | Example |
 | --- | --- | --- |
 | **API** | Takes requests, returns JSON responses | `GET /api/v1/users` |
-| **Business Logic** | Rules and validation for our data | "Email must be valid," "Price > 0" |
-| **Facade** | Middle person between API and storage | Asks repository to save a user |
-| **Persistence** | Stores and retrieves data | In-memory dict (later: database) |
+| **Business Logic** | Rules and validation for our data | User validates email format, Place validates price > 0 |
+| **Facade** | Single point of contact for all operations | `HBnBFacade` manages all CRUD operations |
+| **Persistence** | Stores and retrieves data | `InMemoryRepository` using Python dicts |
 
 ---
 
@@ -93,21 +93,33 @@ The app starts at `http://127.0.0.1:5000`. Open your browser and check it out! F
 
 ### Facade Pattern
 
-Instead of the API layer directly talking to the repository, we use a `Facade` class. It's like having a receptionist who handles all the requests instead of everyone walking into the office randomly. This keeps everything clean and organized.
+The `HBnBFacade` class is the central hub for all business operations. Instead of the API layer directly touching repositories or models, it talks to the facade. The facade handles method calls like `create_user()`, `get_all_places()`, `add_review()`, etc. This keeps the API layer simple and keeps all the complexity hidden.
 
 ### Repository Pattern
 
-The `repository.py` file handles all data storage. Right now it's in-memory (just Python dicts), but later we can swap it out for a real database without changing the rest of the code.
+The `InMemoryRepository` is an abstract repository that stores objects in a Python dictionary. It has methods like `add()`, `get()`, `get_all()`, `update()`, and `delete()`. The key idea is that the Facade doesn't care if data is in memory, a database, or even a spreadsheet—it just calls the same methods. In Part 3, we'll swap this with a SQLAlchemy repository without changing any other code.
 
 ### Models with Validation
 
-Each model (User, Place, etc.) can validate its own data. A User knows what makes a valid email. A Place knows its price should be positive. This keeps validation rules close to the data.
+Each model (User, Place, Amenity, Review) inherits from `BaseModel`, which provides `id`, `created_at`, and `updated_at`. Each model also has its own validation logic:
+
+- **User**: Validates non-empty names and proper email format
+- **Place**: Validates title, positive price, and latitude/longitude bounds
+- **Amenity**: Validates non-empty name with length limit
+- **Review**: Validates non-empty text and rating between 1-5
 
 ---
 
 ## What We're Building
 
-This is educational code, not production software. We're learning good practices by building a simplified AirBnB-like API. Later parts will add a database, more complex features, and real testing practices.
+This is educational code, not production software. We're learning good practices by building a simplified AirBnB-like API. Here's what we have so far:
+
+- **4 Core Models**: User, Place, Amenity, Review—each with validation
+- **4 API Endpoints**: `/api/v1/users`, `/api/v1/places`, `/api/v1/amenities`, `/api/v1/reviews`
+- **Facade System**: `HBnBFacade` coordinates all operations across repositories and models
+- **In-Memory Storage**: Everything is stored in Python dicts for now
+
+Later parts will add a database, more complex relationships, and proper authentication.
 
 ---
 
@@ -135,7 +147,7 @@ pip install -r requirements.txt
 ## Roadmap
 
 - [x] **Part 1** — Project structure, in-memory repository, Facade skeleton
-- [ ] **Part 2** — API endpoints for Users, Places, Reviews, Amenities
+- [x] **Part 2** — API endpoints for Users, Places, Reviews, Amenities
 - [ ] **Part 3** — SQLAlchemy persistence layer replacing in-memory repo
 - [ ] **Part 4** — Authentication and authorization
 
@@ -146,4 +158,61 @@ pip install -r requirements.txt
 - [Flask Documentation](https://flask.palletsprojects.com/)
 - [Flask-RESTx Documentation](https://flask-restx.readthedocs.io/)
 - [Facade Design Pattern](https://refactoring.guru/design-patterns/facade/python/example)
+- [Repository Pattern](https://en.wikipedia.org/wiki/Repository_pattern)
 - [Python Project Structure Best Practices](https://docs.python-guide.org/writing/structure/)
+
+---
+
+## Quick API Overview
+
+### Users (`/api/v1/users`)
+
+```bash
+# Get all users
+GET /api/v1/users
+
+# Create a user
+POST /api/v1/users
+# Body: { "first_name": "John", "last_name": "Doe", "email": "john@example.com" }
+
+# Get a specific user
+GET /api/v1/users/{user_id}
+```
+
+### Places (`/api/v1/places`)
+
+```bash
+# Get all places
+GET /api/v1/places
+
+# Create a place
+POST /api/v1/places
+# Body: { "title": "Cozy Apartment", "price": 100.0, "owner_id": "user-id", ... }
+
+# Get a specific place
+GET /api/v1/places/{place_id}
+```
+
+### Amenities (`/api/v1/amenities`)
+
+```bash
+# Get all amenities
+GET /api/v1/amenities
+
+# Create an amenity
+POST /api/v1/amenities
+# Body: { "name": "WiFi" }
+```
+
+### Reviews (`/api/v1/reviews`)
+
+```bash
+# Get all reviews
+GET /api/v1/reviews
+
+# Create a review
+POST /api/v1/reviews
+# Body: { "text": "Great place!", "user_id": "user-id", "place_id": "place-id", "rating": 5 }
+```
+
+Visit `http://127.0.0.1:5000/api/v1/` for the interactive Swagger UI where you can test endpoints in your browser!
