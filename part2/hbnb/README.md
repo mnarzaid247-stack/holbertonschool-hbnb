@@ -1,112 +1,131 @@
-# HBnB - AirBnB Clone
+# HBnB - Part 2: Building the REST API
 
-A RESTful API application built with Flask and Flask-RESTx, structured around clean separation of concerns across Presentation, Business Logic, and Persistence layers.
+This is Part 2 of the HBnB (Holberton AirBnB Clone) project. Here, we're building a REST API using Flask and Flask-RESTx, with a focus on clean architecture and separating concerns into different layers.
 
 ---
 
-## Project Structure
+## What We're Learning
 
-```
+This part of the project teaches us:
+
+- **Modular Design**: How to structure a Python app so it doesn't become a giant mess of code. Each layer has a specific job.
+- **REST API Development**: Building endpoints with Flask-RESTx, handling requests and responses, and making sure the API documentation is clean.
+- **Business Logic**: Implementing the core "rules" of our app—like what makes a valid user or review.
+- **Data Handling**: Working with nested objects and returning complex data structures from our API endpoints.
+- **Testing**: Making sure our endpoints actually work and handle weird requests gracefully.
+
+---
+
+## How It's Organized
+
+The project is split into **layers**. Think of it like a restaurant: the customer (API client) places an order with the waiter (API), the waiter tells the kitchen (business logic) what to make, and the kitchen stores ingredients in the pantry (persistence).
+
+```text
 hbnb/
 ├── app/
-│   ├── __init__.py          # Flask app factory
+│   ├── __init__.py              # Sets up the Flask app
 │   ├── api/
-│   │   ├── __init__.py
-│   │   └── v1/
-│   │       ├── __init__.py
-│   │       ├── users.py     # User endpoints
-│   │       ├── places.py    # Place endpoints
-│   │       ├── reviews.py   # Review endpoints
-│   │       └── amenities.py # Amenity endpoints
+│   │   └── v1/                  # API version 1
+│   │       ├── users.py         # User endpoints
+│   │       ├── places.py        # Place endpoints
+│   │       ├── reviews.py       # Review endpoints
+│   │       └── amenities.py     # Amenity endpoints
 │   ├── models/
-│   │   ├── __init__.py
-│   │   ├── user.py          # User business logic
-│   │   ├── place.py         # Place business logic
-│   │   ├── review.py        # Review business logic
-│   │   └── amenity.py       # Amenity business logic
+│   │   ├── base_model.py        # Base class for all models
+│   │   ├── user.py              # User class with validation
+│   │   ├── place.py             # Place class
+│   │   ├── review.py            # Review class
+│   │   └── amenity.py           # Amenity class
 │   ├── services/
-│   │   ├── __init__.py      # Facade singleton
-│   │   └── facade.py        # HBnBFacade — inter-layer communication
+│   │   └── facade.py            # Facade pattern—talks to repos and models
 │   └── persistence/
-│       ├── __init__.py
-│       └── repository.py    # Abstract repo + InMemoryRepository
-├── run.py                   # Application entry point
-├── config.py                # Environment configuration
-├── requirements.txt         # Python dependencies
+│       └── repository.py        # Where data actually lives (memory for now)
+├── run.py                       # Start the app here
+├── config.py                    # Settings (debug mode, secret key, etc.)
+├── requirements.txt             # What libraries we need
 └── README.md
 ```
 
-### Layer Overview
+### The Layers Explained
 
-| Layer | Location | Responsibility |
-|---|---|---|
-| **Presentation** | `app/api/` | API endpoints and request/response handling |
-| **Business Logic** | `app/models/` | Core entities and validation rules |
-| **Service / Facade** | `app/services/` | Orchestrates interaction between layers |
-| **Persistence** | `app/persistence/` | Object storage (in-memory now, DB later) |
-
----
-
-## Key Design Patterns
-
-### Facade Pattern
-The `HBnBFacade` class (`app/services/facade.py`) acts as a single point of contact between the API layer and the underlying repositories. A singleton instance is created in `app/services/__init__.py` and shared across the app.
-
-### Repository Pattern
-`repository.py` defines an abstract `Repository` interface and a concrete `InMemoryRepository` implementation. This makes it easy to swap in a database-backed repository (SQLAlchemy) in Part 3 without changing any business logic.
+| Layer | Purpose | Example |
+| --- | --- | --- |
+| **API** | Takes requests, returns JSON responses | `GET /api/v1/users` |
+| **Business Logic** | Rules and validation for our data | "Email must be valid," "Price > 0" |
+| **Facade** | Middle person between API and storage | Asks repository to save a user |
+| **Persistence** | Stores and retrieves data | In-memory dict (later: database) |
 
 ---
 
 ## Getting Started
 
-### Prerequisites
-- Python 3.8+
-- pip
+### What You Need
 
-### Installation
+- Python 3.8 or newer
+- pip (comes with Python)
+
+### Setup
 
 ```bash
-# Clone the repository
+# Get the code
 git clone <your-repo-url>
-cd hbnb
+cd part2/hbnb
 
-# (Optional) Create and activate a virtual environment
+# Create a virtual environment (recommended)
 python3 -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
 ```
 
-### Running the Application
+### Running It
 
 ```bash
 python run.py
 ```
 
-The app will start in debug mode. Visit `http://127.0.0.1:5000/api/v1/` to access the Swagger UI (no routes are active yet at this stage).
+The app starts at `http://127.0.0.1:5000`. Open your browser and check it out! Flask-RESTx provides a nice interface to test your endpoints.
 
 ---
 
-## Configuration
+## Key Ideas We're Using
 
-Environment-specific settings live in `config.py`. The default config uses `DevelopmentConfig` which enables debug mode. You can extend this file with database URIs and other settings as the project grows.
+### Facade Pattern
 
-```python
-# Override the secret key via environment variable
-export SECRET_KEY="your-secret-key"
-```
+Instead of the API layer directly talking to the repository, we use a `Facade` class. It's like having a receptionist who handles all the requests instead of everyone walking into the office randomly. This keeps everything clean and organized.
+
+### Repository Pattern
+
+The `repository.py` file handles all data storage. Right now it's in-memory (just Python dicts), but later we can swap it out for a real database without changing the rest of the code.
+
+### Models with Validation
+
+Each model (User, Place, etc.) can validate its own data. A User knows what makes a valid email. A Place knows its price should be positive. This keeps validation rules close to the data.
 
 ---
+
+## What We're Building
+
+This is educational code, not production software. We're learning good practices by building a simplified AirBnB-like API. Later parts will add a database, more complex features, and real testing practices.
+
+---
+
+## Authors
+
+- Aljawharah
+- Manar
+- Reem
 
 ## Dependencies
 
 | Package | Purpose |
-|---|---|
+| --- | --- |
 | `flask` | Web framework |
 | `flask-restx` | REST API + Swagger UI |
 
 Install with:
+
 ```bash
 pip install -r requirements.txt
 ```
