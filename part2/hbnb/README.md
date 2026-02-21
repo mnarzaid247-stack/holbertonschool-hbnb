@@ -68,7 +68,7 @@ hbnb/
 
 ```bash
 # Get the code
-git clone <your-repo-url>
+git clone git@github.com:mnarzaid247-stack/holbertonschool-hbnb.git
 cd part2/hbnb
 
 # Create a virtual environment (recommended)
@@ -216,3 +216,4 @@ POST /api/v1/reviews
 ```
 
 Visit `http://127.0.0.1:5000/api/v1/` for the interactive Swagger UI where you can test endpoints in your browser!
+
