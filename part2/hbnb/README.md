@@ -121,13 +121,7 @@ This is educational code, not production software. We're learning good practices
 
 Later parts will add a database, more complex relationships, and proper authentication.
 
----
 
-## Authors
-
-- Aljawharah
-- Manar
-- Reem
 
 ## Dependencies
 
@@ -142,24 +136,6 @@ Install with:
 pip install -r requirements.txt
 ```
 
----
-
-## Roadmap
-
-- [x] **Part 1** — Project structure, in-memory repository, Facade skeleton
-- [x] **Part 2** — API endpoints for Users, Places, Reviews, Amenities
-- [ ] **Part 3** — SQLAlchemy persistence layer replacing in-memory repo
-- [ ] **Part 4** — Authentication and authorization
-
----
-
-## Resources
-
-- [Flask Documentation](https://flask.palletsprojects.com/)
-- [Flask-RESTx Documentation](https://flask-restx.readthedocs.io/)
-- [Facade Design Pattern](https://refactoring.guru/design-patterns/facade/python/example)
-- [Repository Pattern](https://en.wikipedia.org/wiki/Repository_pattern)
-- [Python Project Structure Best Practices](https://docs.python-guide.org/writing/structure/)
 
 ---
 
@@ -216,4 +192,23 @@ POST /api/v1/reviews
 ```
 
 Visit `http://127.0.0.1:5000/api/v1/` for the interactive Swagger UI where you can test endpoints in your browser!
+
+---
+
+## Roadmap
+
+- [x] **Part 1** — Project structure, in-memory repository, Facade skeleton
+- [x] **Part 2** — API endpoints for Users, Places, Reviews, Amenities
+- [ ] **Part 3** — SQLAlchemy persistence layer replacing in-memory repo
+- [ ] **Part 4** — Authentication and authorization
+---
+
+## Authors
+
+- Aljawharah
+- Manar
+- Reem
+
+
+
 
