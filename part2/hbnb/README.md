@@ -195,6 +195,125 @@ Visit `http://127.0.0.1:5000/api/v1/` for the interactive Swagger UI where you c
 
 ---
 
+# Testing and Validation Report
+
+## Running the Application
+
+export PYTHONPATH=.
+python3 run.py
+
+Swagger documentation available at:
+http://127.0.0.1:5000/api/v1/
+
+---
+
+## Running Automated Tests
+
+python3 -m unittest discover -s tests -t . -v
+
+Total tests executed: 10  
+All tests passed successfully.
+
+Automated tests cover:
+
+- Model validation (User, Place, Amenity, Review)
+- API endpoint testing (Users)
+- Success and failure scenarios
+- Boundary and invalid input handling
+
+---
+
+## Black-Box Testing Using cURL
+
+The following tests were performed using cURL to verify endpoint behavior and HTTP status codes.
+
+### 1. Create User — Success Case
+
+curl -i -X POST "http://127.0.0.1:5000/api/v1/users/" \
+-H "Content-Type: application/json" \
+-d '{"first_name":"John","last_name":"Doe","email":"john.doe@example.com"}'
+
+Expected Status: 201 Created  
+Actual Status: 201 Created  
+
+---
+
+### 2. Create User — Invalid Email
+
+curl -i -X POST "http://127.0.0.1:5000/api/v1/users/" \
+-H "Content-Type: application/json" \
+-d '{"first_name":"","last_name":"","email":"invalid-email"}'
+
+Expected Status: 400 Bad Request  
+Actual Status: 400 Bad Request  
+
+Validation correctly rejected empty fields and invalid email format.
+
+---
+
+### 3. Create User — Duplicate Email
+
+curl -i -X POST "http://127.0.0.1:5000/api/v1/users/" \
+-H "Content-Type: application/json" \
+-d '{"first_name":"A","last_name":"B","email":"dup@example.com"}'
+
+Second request using same email returns:
+
+Expected Status: 400 Bad Request  
+Actual Status: 400 Bad Request  
+
+System correctly prevents duplicate email registration.
+
+---
+
+### 4. Get User — Not Found
+
+curl -i "http://127.0.0.1:5000/api/v1/users/does-not-exist"
+
+Expected Status: 404 Not Found  
+Actual Status: 404 Not Found  
+
+---
+
+## Boundary and Edge Case Testing
+
+### User Model
+- Empty first_name → rejected
+- Empty last_name → rejected
+- Invalid email format → rejected
+- Duplicate email → rejected
+
+### Place Model
+- Empty title → rejected
+- Price ≤ 0 → rejected
+- Latitude outside [-90, 90] → rejected
+- Longitude outside [-180, 180] → rejected
+
+### Amenity Model
+- Empty name → rejected
+- Name exceeding length limit → rejected
+
+### Review Model
+- Empty text → rejected
+- Rating outside valid range → rejected
+- Invalid user_id or place_id → rejected
+
+---
+
+## Summary
+
+All endpoints were tested using automated unit tests (unittest), manual black-box testing with cURL, and Swagger UI verification.
+
+The API correctly handles:
+
+- Valid requests
+- Invalid input data
+- Duplicate entries
+- Non-existent resources
+- Boundary conditions
+
+All validation rules defined in the Business Logic Layer are enforced and reflected in API responses.
+
 ## Roadmap
 
 - [x] **Part 1** — Project structure, in-memory repository, Facade skeleton
@@ -208,6 +327,7 @@ Visit `http://127.0.0.1:5000/api/v1/` for the interactive Swagger UI where you c
 - Aljawharah
 - Manar
 - Reem
+
 
 
 
