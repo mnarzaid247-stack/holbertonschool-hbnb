@@ -61,9 +61,11 @@ class Place(BaseModel):
                 raise ValueError("invalid longitude")
 
     def update(self, data):
-        for k, v in data.items():
-            if hasattr(self, k):
-                setattr(self, k, v)
-        self.validate()
-        self.save()
-
+    protected = {"id", "created_at", "updated_at", "reviews", "amenities"}
+    for k, v in data.items():
+        if k in protected:
+            continue
+        if hasattr(self, k):
+            setattr(self, k, v)
+    self.validate()
+    self.save()
