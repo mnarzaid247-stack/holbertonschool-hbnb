@@ -15,6 +15,8 @@ class Place(BaseModel):
         self.amenity_ids = amenity_ids or []
 
         self.review_ids = review_ids or []
+        self.reviews = []
+        self.amenities = []
 
         self.validate()
 
@@ -64,3 +66,4 @@ class Place(BaseModel):
                 setattr(self, k, v)
         self.validate()
         self.save()
+
