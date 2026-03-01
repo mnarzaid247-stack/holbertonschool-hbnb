@@ -33,8 +33,8 @@ class HBnBFacade:
         if not user:
             return None
         if "password" in user_data:
-        user.hash_password(user_data["password"])
-        user_data = {k: v for k, v in user_data.items() if k != "password"}
+            user.hash_password(user_data["password"])
+            user_data = {k: v for k, v in user_data.items() if k != "password"}
         self.user_repo.update(user_id, user_data)
         return self.user_repo.get(user_id)
 
