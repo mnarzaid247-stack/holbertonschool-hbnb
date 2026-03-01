@@ -17,6 +17,21 @@ def create_app(config_class="config.DevelopmentConfig"):
     app.config.from_object(config_class)
     jwt.init_app(app)
     bcrypt.init_app(app)
+
+    from flask import jsonify
+
+    @jwt.unauthorized_loader
+    def unauthorized_callback(err_str):
+        return jsonify({"error": "Missing or invalid Authorization header"}), 401
+
+    @jwt.invalid_token_loader
+    def invalid_token_callback(err_str):
+        return jsonify({"error": "Invalid token"}), 401
+
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return jsonify({"error": "Token has expired"}), 401
+        
     api = Api(
             app,
             version='1.0',
