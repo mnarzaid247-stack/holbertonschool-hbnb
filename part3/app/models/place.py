@@ -21,33 +21,33 @@ class Place(BaseModel):
         self.validate()
 
     def add_review(self, review):
-    review_id = getattr(review, "id", review)
-    if not isinstance(review_id, str) or not review_id:
-        raise TypeError("review must be a Review instance or a non-empty review id string")
+        review_id = getattr(review, "id", review)
+        if not isinstance(review_id, str) or not review_id:
+            raise TypeError("review must be a Review instance or a non-empty review id string")
 
-    if review_id in self.review_ids:
-        return
+        if review_id in self.review_ids:
+            return
 
-    self.review_ids.append(review_id)
-    if hasattr(review, "id") and review not in self.reviews:
-        self.reviews.append(review)
+        self.review_ids.append(review_id)
+        if hasattr(review, "id") and review not in self.reviews:
+            self.reviews.append(review)
 
-    self.save()
+        self.save()
 
     def add_amenity(self, amenity):
-    amenity_id = getattr(amenity, "id", amenity)
-    if not isinstance(amenity_id, str) or not amenity_id:
-        raise TypeError("amenity must be an Amenity instance or a non-empty amenity id string")
+        amenity_id = getattr(amenity, "id", amenity)
+        if not isinstance(amenity_id, str) or not amenity_id:
+            raise TypeError("amenity must be an Amenity instance or a non-empty amenity id string")
 
-    if amenity_id in self.amenity_ids:
-        return
+        if amenity_id in self.amenity_ids:
+            return
 
-    self.amenity_ids.append(amenity_id)
+        self.amenity_ids.append(amenity_id)
 
-    if hasattr(amenity, "id") and amenity not in self.amenities:
-        self.amenities.append(amenity)
+        if hasattr(amenity, "id") and amenity not in self.amenities:
+            self.amenities.append(amenity)
 
-    self.save()
+        self.save()
 
     def validate(self):
         if not self.title or len(self.title.strip()) == 0:
@@ -68,11 +68,11 @@ class Place(BaseModel):
                 raise ValueError("invalid longitude")
 
     def update(self, data):
-    protected = {"id", "created_at", "updated_at", "reviews", "amenities"}
-    for k, v in data.items():
-        if k in protected:
-            continue
-        if hasattr(self, k):
-            setattr(self, k, v)
-    self.validate()
-    self.save()
+        protected = {"id", "created_at", "updated_at", "reviews", "amenities"}
+        for k, v in data.items():
+            if k in protected:
+                continue
+            if hasattr(self, k):
+                setattr(self, k, v)
+        self.validate()
+        self.save()
