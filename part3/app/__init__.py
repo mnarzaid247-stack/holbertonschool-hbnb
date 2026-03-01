@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_restx import Api
+from flask_bcrypt import Bcrypt 
 
 bcrypt = Bcrypt()
 
