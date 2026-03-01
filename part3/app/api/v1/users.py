@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
-from flask_jst_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace("users", description="User operations")
 
