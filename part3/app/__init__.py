@@ -25,13 +25,7 @@ def create_app(config_class="config.DevelopmentConfig"):
             description='HBnB Application API',
             doc='/api/v1/'
         )
-    from flask import jsonify
-    from flask_jwt_extended.exceptions import NoAuthorizationError
-
-    @app.errorhandler(NoAuthorizationError)
-    def handle_no_auth(e):
-        return jsonify({"error": "Missing Authorization Header"}), 401
-        
+   
     api.add_namespace(users_ns, path="/api/v1/users")
     api.add_namespace(amenities_ns, path="/api/v1/amenities")
     api.add_namespace(places_ns, path="/api/v1/places")
