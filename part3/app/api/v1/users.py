@@ -22,10 +22,6 @@ class UserList(Resource):
     @api.response(200, "Users retrieved successfully")
     @jwt_required()
     def get(self):
-        try:
-            verify_jwt_in_request()
-        except NoAuthorizationError:
-            return {"error": "Missing Authorization Header"}, 401
         users = facade.get_all_users()
         return [
             {
