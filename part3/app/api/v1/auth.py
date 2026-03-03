@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from app.services import facade
 from app.services import facade
 
 api = Namespace("auth", description="Authentication operations")
@@ -31,3 +32,10 @@ class Login(Resource):
         )
 
         return {"access_token": access_token}, 200
+
+@api.route("/protected")
+class Protected(Resource):
+    @jwt_required()
+    def get(self):
+        user_id = get_jwt_identity()
+        return {"message": f"Hello, user {user_id}"}, 200
