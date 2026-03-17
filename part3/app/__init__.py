@@ -17,6 +17,14 @@ def create_app(config_class="config.DevelopmentConfig"):
     jwt.init_app(app)
     bcrypt.init_app(app)
     
+    # Import models to register them with SQLAlchemy
+    from app.models.base_model import BaseModel
+    from app.models.user import User
+    from app.models.place import Place
+    from app.models.review import Review
+    from app.models.amenity import Amenity
+    from app.models.associations import place_amenity
+    
     from app.api.v1.auth import api as auth_ns
     from app.api.v1.users import api as users_ns
     from app.api.v1.amenities import api as amenities_ns

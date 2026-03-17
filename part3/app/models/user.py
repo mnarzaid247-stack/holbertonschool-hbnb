@@ -31,6 +31,20 @@ class User(BaseModel):
         nullable=False
     )
 
+    # Relationships
+    places = db.relationship(
+        'Place',
+        backref='owner',
+        lazy='select',
+        cascade='all, delete-orphan'
+    )
+    reviews = db.relationship(
+        'Review',
+        backref='author',
+        lazy='select',
+        cascade='all, delete-orphan'
+    )
+
     def __init__(
         self,
         first_name,

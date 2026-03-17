@@ -28,11 +28,26 @@ class Place(BaseModel):
     )
     owner_id = db.Column(
         db.String(36),
+        db.ForeignKey('users.id'),
         nullable=False
     )
     is_available = db.Column(
         db.Boolean,
         default=True
+    )
+
+    # Relationships
+    reviews = db.relationship(
+        'Review',
+        backref='place',
+        lazy='select',
+        cascade='all, delete-orphan'
+    )
+    amenities = db.relationship(
+        'Amenity',
+        secondary='place_amenity',
+        lazy='select',
+        backref=db.backref('places', lazy='select')
     )
 
     def __init__(
