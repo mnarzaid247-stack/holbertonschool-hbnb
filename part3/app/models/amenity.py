@@ -1,22 +1,31 @@
 #!/usr/bin/python3
+"""Amenity model for database persistence"""
+from app import db
 from app.models.base_model import BaseModel
 
 
 class Amenity(BaseModel):
-    def __init__(self, name):
+    """Amenity model representing an amenity"""
+    __tablename__ = 'amenities'
+
+    name = db.Column(
+        db.String(50),
+        nullable=False
+    )
+    description = db.Column(
+        db.Text,
+        default=""
+    )
+
+    def __init__(self, name, description=""):
         super().__init__()
         self.name = name
+        self.description = description
         self.validate()
 
     def validate(self):
+        """Validate amenity attributes"""
         if not self.name or len(self.name.strip()) == 0:
             raise ValueError("name cannot be empty")
         if len(self.name) > 50:
             raise ValueError("name too long")
-
-    def update(self, data):
-        for k, v in data.items():
-            if hasattr(self, k):
-                setattr(self, k, v)
-        self.validate()
-        self.save()

@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import jwt_required, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 from app.services import facade
 
 api = Namespace("reviews", description="Review operations")
@@ -27,8 +27,8 @@ class ReviewList(Resource):
     @api.response(404, "Place not found")
     @jwt_required()
     def post(self):
+        user_id = get_jwt_identity()
         claims = get_jwt()
-        user_id = claims.get("id")
         is_admin = claims.get("is_admin", False)
 
         review_data = api.payload
@@ -79,8 +79,8 @@ class ReviewResource(Resource):
     @api.response(404, "Review not found")
     @jwt_required()
     def put(self, review_id):
+        user_id = get_jwt_identity()
         claims = get_jwt()
-        user_id = claims.get("id")
         is_admin = claims.get("is_admin", False)
 
         review = facade.get_review(review_id)
@@ -111,8 +111,8 @@ class ReviewResource(Resource):
     @api.response(404, "Review not found")
     @jwt_required()
     def delete(self, review_id):
+        user_id = get_jwt_identity()
         claims = get_jwt()
-        user_id = claims.get("id")
         is_admin = claims.get("is_admin", False)
 
         review = facade.get_review(review_id)

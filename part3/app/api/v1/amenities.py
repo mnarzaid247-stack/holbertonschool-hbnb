@@ -9,6 +9,7 @@ amenity_model = api.model(
     "Amenity",
     {
         "name": fields.String(required=True, description="Name of the amenity"),
+        "description": fields.String(description="Description of the amenity"),
     },
 )
 
@@ -18,7 +19,10 @@ class AmenityList(Resource):
     @api.response(200, "List of amenities retrieved successfully")
     def get(self):
         amenities = facade.get_all_amenities()
-        return [{"id": a.id, "name": a.name} for a in amenities], 200
+        return [
+            {"id": a.id, "name": a.name, "description": a.description}
+            for a in amenities
+        ], 200
 
     @api.expect(amenity_model, validate=True)
     @api.response(201, "Amenity successfully created")
@@ -26,7 +30,11 @@ class AmenityList(Resource):
     def post(self):
         amenity_data = api.payload
         new_amenity = facade.create_amenity(amenity_data)
-        return {"id": new_amenity.id, "name": new_amenity.name}, 201
+        return {
+            "id": new_amenity.id,
+            "name": new_amenity.name,
+            "description": new_amenity.description,
+        }, 201
 
 
 @api.route("/<amenity_id>")
@@ -37,7 +45,11 @@ class AmenityResource(Resource):
         amenity = facade.get_amenity(amenity_id)
         if not amenity:
             return {"error": "Amenity not found"}, 404
-        return {"id": amenity.id, "name": amenity.name}, 200
+        return {
+            "id": amenity.id,
+            "name": amenity.name,
+            "description": amenity.description,
+        }, 200
 
     @api.expect(amenity_model, validate=True)
     @api.response(200, "Amenity updated successfully")
