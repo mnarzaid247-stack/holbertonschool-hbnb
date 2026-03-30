@@ -2,9 +2,10 @@ import os
 
 
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret_key')
+    SECRET_KEY = os.getenv("SECRET_KEY", "default_secret_key")
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "super-secret-key-change-me")
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///hbnb.db')
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///hbnb.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
@@ -13,6 +14,6 @@ class DevelopmentConfig(Config):
 
 
 config = {
-    'development': DevelopmentConfig,
-    'default': DevelopmentConfig
+    "development": DevelopmentConfig,
+    "default": DevelopmentConfig
 }
