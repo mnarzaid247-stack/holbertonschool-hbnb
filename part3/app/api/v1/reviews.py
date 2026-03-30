@@ -16,7 +16,7 @@ review_model = api.model(
 )
 
 
-@api.route("/<string:review_id>")
+@api.route("/")
 class ReviewList(Resource):
     @api.expect(review_model, validate=True)
     @api.response(201, "Review successfully created")
