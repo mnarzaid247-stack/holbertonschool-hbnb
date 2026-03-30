@@ -146,4 +146,4 @@ class HBnBFacade:
             return False
         self.review_repo.delete(review_id)
         return True
-        return True
+        
