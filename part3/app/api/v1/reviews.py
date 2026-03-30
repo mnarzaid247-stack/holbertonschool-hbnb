@@ -37,14 +37,14 @@ class ReviewList(Resource):
             return {"error": "Unauthorized action"}, 403
 
         try:
-        new_review = facade.create_review(review_data)
-    except ValueError as e:
-        msg = str(e)
-        if msg in ["User not found", "Place not found"]:
-            return {"error": msg}, 404
-        if msg in ["You cannot review your own place", "Duplicate review not allowed"]:
-            return {"error": msg}, 400
-        return {"error": "Invalid input data", "details": msg}, 400
+            new_review = facade.create_review(review_data)
+        except ValueError as e:
+            msg = str(e)
+            if msg in ["User not found", "Place not found"]:
+                return {"error": msg}, 404
+            if msg in ["You cannot review your own place", "Duplicate review not allowed"]:
+                return {"error": msg}, 400
+            return {"error": "Invalid input data", "details": msg}, 400
 
         return {
             "id": new_review.id,
@@ -60,7 +60,7 @@ class ReviewList(Resource):
         return [{"id": r.id, "text": r.text, "rating": r.rating} for r in reviews], 200
 
 
-@api.route("/<review_id>")
+@api.route("/<string:review_id>")
 class ReviewResource(Resource):
     @api.response(200, "Review details retrieved successfully")
     @api.response(404, "Review not found")
