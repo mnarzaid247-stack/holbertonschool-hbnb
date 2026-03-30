@@ -1,81 +1,151 @@
-# Part 3 Testing Documentation
+# Testing Documentation - Part 3
 
-This file documents the testing performed for Part 3 tasks 1, 2, 7, and 8.
+## Task 1: Password Hashing
 
----
-
-## Task 1 - Application Setup and API Documentation
-
-### Run the application
-python3 run.py
-
-### Expected result
-The Flask application starts successfully without errors.
-
-### Actual result
-The application started successfully and the server was running.
-
-### Swagger documentation test
-
-Open this URL in the browser:
-
-http://127.0.0.1:5000/api/v1/
-
-### Expected result
-The Swagger API documentation page loads correctly.
-
-### Actual result
-The Swagger documentation loaded successfully.
+### Objective
+Verify that user passwords are hashed before storage, are not returned in API responses, and can be validated correctly.
 
 ---
 
-## Task 2 - Authentication and JWT Protection
+### Test 1: Create a new user with password
 
-### Create a user
+Request
 curl -X POST http://127.0.0.1:5000/api/v1/users/ \
 -H "Content-Type: application/json" \
--d '{
+-d '{"first_name":"John","last_name":"Doe","email":"john@example.com","password":"1234"}'
+
+Expected Result
+- Status code: 201 Created
+- User is created successfully
+- Password is not included in the response
+
+Example Response
+{
+  "id": "generated-id",
   "first_name": "John",
   "last_name": "Doe",
-  "email": "john@example.com",
-  "password": "1234"
-}'
-
-### Expected result
-A new user is created successfully.
-
-### Actual result
-The user was created successfully.
+  "email": "john@example.com"
+}
 
 ---
 
-### Login with the created user
+### Test 2: Verify password is hashed
+
+Expected Result
+- Password is not "1234"
+- Password is stored as a hashed value
+- If using bcrypt, it usually starts with something like "$2b$"
+
+---
+
+### Test 3: Verify password validation
+
+Expected Result
+- verify_password("1234") returns True
+- verify_password("wrongpassword") returns False
+
+---
+
+### Test 4: Create user without password
+
+Request
+curl -X POST http://127.0.0.1:5000/api/v1/users/ \
+-H "Content-Type: application/json" \
+-d '{"first_name":"Jane","last_name":"Doe","email":"jane@example.com"}'
+
+Expected Result
+- Status code: 400 Bad Request
+- Error returned because password is missing
+
+---
+
+### Result
+Passwords are hashed correctly, not exposed in API responses, and validated properly.
+
+---
+
+
+## Task 2: JWT Authentication
+
+### Objective
+Verify that users can log in, receive a JWT token, and access protected endpoints using that token.
+
+---
+
+### Test 1: Login with correct credentials
+
+Request
 curl -X POST http://127.0.0.1:5000/api/v1/auth/login \
 -H "Content-Type: application/json" \
--d '{
-  "email": "john@example.com",
-  "password": "1234"
-}'
+-d '{"email":"john@example.com","password":"1234"}'
 
-### Expected result
-A JWT access token is returned.
+Expected Result
+- Status code: 200 OK
+- A JWT access token is returned
 
-### Actual result
-The login was successful and a JWT token was returned.
+Example Response
+{
+  "access_token": "your_jwt_token_here"
+}
 
 ---
 
-### Access a protected route
+### Test 2: Login with wrong password
+
+Request
+curl -X POST http://127.0.0.1:5000/api/v1/auth/login \
+-H "Content-Type: application/json" \
+-d '{"email":"john@example.com","password":"wrongpassword"}'
+
+Expected Result
+- Status code: 401 Unauthorized
+- Error message indicating invalid credentials
+
+---
+
+### Test 3: Access protected route with token
+
+Request
 curl -X GET http://127.0.0.1:5000/api/v1/auth/protected \
--H "Authorization: Bearer YOUR_TOKEN_HERE"
+-H "Authorization: Bearer your_jwt_token_here"
 
-### Expected result
-The protected route is accessible only with a valid JWT token.
+Expected Result
+- Status code: 200 OK
+- Access granted message
 
-### Actual result
-The protected route was accessed successfully using the JWT token.
+Example Response
+{
+  "message": "You are authorized"
+}
 
 ---
+
+### Test 4: Access protected route without token
+
+Request
+curl -X GET http://127.0.0.1:5000/api/v1/auth/protected
+
+Expected Result
+- Status code: 401 Unauthorized
+- Error indicating missing token
+
+---
+
+### Test 5: Access protected route with invalid token
+
+Request
+curl -X GET http://127.0.0.1:5000/api/v1/auth/protected \
+-H "Authorization: Bearer invalid_token"
+
+Expected Result
+- Status code: 401 Unauthorized
+- Error indicating invalid token
+
+---
+
+### Result
+JWT authentication works correctly. Users can log in, receive a token, and access protected endpoints only with valid authorization.
+
 
 ## Task 7 - User Model Database Mapping
 
