@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required
 from app.services import facade
-from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace("users", description="User operations")
 
@@ -18,7 +18,6 @@ user_model = api.model(
 
 @api.route("/")
 class UserList(Resource):
-
     @api.response(200, "Users retrieved successfully")
     @jwt_required()
     def get(self):
@@ -38,7 +37,6 @@ class UserList(Resource):
     @api.response(400, "Invalid input data or email already registered")
     def post(self):
         user_data = api.payload
-
         existing_user = facade.get_user_by_email(user_data["email"])
         if existing_user:
             return {"error": "Email already registered"}, 400
@@ -50,13 +48,12 @@ class UserList(Resource):
 
         return {
             "id": new_user.id,
-            "message": "User successfully created"
+            "message": "User successfully created",
         }, 201
 
 
-@api.route("/<user_id>")
+@api.route("/<string:user_id>")
 class UserResource(Resource):
-
     @api.response(200, "User details retrieved successfully")
     @api.response(404, "User not found")
     def get(self, user_id):
@@ -77,7 +74,6 @@ class UserResource(Resource):
     @api.response(400, "Invalid input data")
     def put(self, user_id):
         user_data = api.payload
-
         try:
             updated = facade.update_user(user_id, user_data)
         except (ValueError, TypeError) as e:
