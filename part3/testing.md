@@ -179,66 +179,90 @@ The user was inserted and retrieved successfully.
 
 ---
 
-## Task 8 - Place, Review, and Amenity Model Database Mapping
 
-### Run Python
-python3
+## Task 8 - Repository Layer Testing
 
-### Then execute
-from app import create_app, db
-from app.models.user import User
-from app.models.place import Place
-from app.models.review import Review
-from app.models.amenity import Amenity
-
-app = create_app()
-
-with app.app_context():
-    user = User(
-        first_name="Alice",
-        last_name="Smith",
-        email="alice@example.com",
-        password="1234"
-    )
-    db.session.add(user)
-    db.session.commit()
-
-    place = Place(
-        title="Test Place",
-        description="Nice place",
-        price=100,
-        latitude=24.7136,
-        longitude=46.6753,
-        owner_id=user.id
-    )
-    db.session.add(place)
-
-    amenity = Amenity(name="WiFi")
-    db.session.add(amenity)
-    db.session.commit()
-
-    review = Review(
-        text="Great place",
-        rating=5,
-        user_id=user.id,
-        place_id=place.id
-    )
-    db.session.add(review)
-    db.session.commit()
-
-    print(Place.query.all())
-    print(Amenity.query.all())
-    print(Review.query.all())
-
-### Expected result
-All models are stored and retrieved successfully.
-
-### Actual result
-All models were inserted and retrieved successfully.
+### Objective
+Test the repository layer after transitioning from in-memory storage to database-backed persistence using SQLAlchemy.
 
 ---
 
-## Notes
+### Setup
+- Database created using schema.sql
+- Test data inserted using seed.sql
+- Application configured with SQLAlchemy
+- Repositories used:
+  - UserRepository
+  - PlaceRepository
+  - ReviewRepository
+  - AmenityRepository
 
+---
+
+### Test Cases
+
+#### 1. Create User
+- Endpoint: POST /api/v1/users/
+- Expected: User is saved in the database with a unique ID
+
+#### 2. Get All Users
+- Endpoint: GET /api/v1/users/
+- Expected: Returns a list of users from the database
+
+#### 3. Get User by ID
+- Endpoint: GET /api/v1/users/<user_id>
+- Expected: Returns correct user data
+
+#### 4. Update User
+- Endpoint: PUT /api/v1/users/<user_id>
+- Expected: User data is updated in the database
+
+---
+
+#### 5. Create Amenity
+- Endpoint: POST /api/v1/amenities/
+- Expected: Amenity is saved in the database
+
+#### 6. Get All Amenities
+- Endpoint: GET /api/v1/amenities/
+- Expected: Returns all amenities from the database
+
+---
+
+#### 7. Create Place
+- Endpoint: POST /api/v1/places/
+- Expected: Place is saved with correct owner and attributes
+
+#### 8. Get Place by ID
+- Endpoint: GET /api/v1/places/<place_id>
+- Expected: Returns correct place with owner and amenities
+
+---
+
+#### 9. Create Review
+- Endpoint: POST /api/v1/reviews/
+- Expected: Review is stored and linked to user and place
+
+#### 10. Prevent Duplicate Review
+- Same user tries to review same place twice
+- Expected: Request is rejected
+
+---
+
+### Verification
+
+- Checked database directly using SQL queries
+- Verified records are inserted, updated, and retrieved correctly
+- Confirmed relationships:
+  - User ↔ Place
+  - Place ↔ Review
+  - Place ↔ Amenity
+
+---
+
+### Result
+
+All repository operations are functioning correctly with the database.
+Data persistence is confirmed across all entities.
 - Replace YOUR_TOKEN_HERE with the real JWT token.
 - All tests were executed successfully.
