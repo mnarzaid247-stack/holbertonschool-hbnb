@@ -11,6 +11,6 @@ VALUES (
 );
 
 INSERT INTO amenity (id, name) VALUES
-('11111111-1111-1111-1111-111111111111', 'WiFi'),
-('22222222-2222-2222-2222-222222222222', 'Swimming Pool'),
-('33333333-3333-3333-3333-333333333333', 'Air Conditioning');
+('42308b94-293e-463a-8290-e3456d636228', 'WiFi'),
+('1995e61a-0e8e-4389-8005-f92dd0a79a1b', 'Swimming Pool'),
+('f344e5f1-c716-479a-8d0e-3939312ab6a2', 'Air Conditioning');
