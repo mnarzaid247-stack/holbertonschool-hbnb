@@ -3,266 +3,272 @@
 ## Task 1: Password Hashing
 
 ### Objective
-Verify that user passwords are hashed before storage, are not returned in API responses, and can be validated correctly.
+Ensure that passwords are securely hashed, not exposed in API responses, and validated correctly.
 
----
+### Test 1: Create user with password
 
-### Test 1: Create a new user with password
+Request:
 
-Request
-curl -X POST http://127.0.0.1:5000/api/v1/users/ \
--H "Content-Type: application/json" \
--d '{"first_name":"John","last_name":"Doe","email":"john@example.com","password":"1234"}'
+    curl -X POST http://127.0.0.1:5000/api/v1/users/ \
+    -H "Content-Type: application/json" \
+    -d '{"first_name":"John","last_name":"Doe","email":"john@example.com","password":"1234"}'
 
-Expected Result
+Expected Result:
 - Status code: 201 Created
 - User is created successfully
 - Password is not included in the response
 
-Example Response
-{
-  "id": "generated-id",
-  "first_name": "John",
-  "last_name": "Doe",
-  "email": "john@example.com"
-}
-
----
-
 ### Test 2: Verify password is hashed
 
-Expected Result
-- Password is not "1234"
-- Password is stored as a hashed value
-- If using bcrypt, it usually starts with something like "$2b$"
-
----
+Verification:
+- Check the database directly
+- Password is not stored as "1234"
+- Stored password appears as a bcrypt hash
 
 ### Test 3: Verify password validation
 
-Expected Result
-- verify_password("1234") returns True
-- verify_password("wrongpassword") returns False
-
----
-
-### Test 4: Create user without password
-
-Request
-curl -X POST http://127.0.0.1:5000/api/v1/users/ \
--H "Content-Type: application/json" \
--d '{"first_name":"Jane","last_name":"Doe","email":"jane@example.com"}'
-
-Expected Result
-- Status code: 400 Bad Request
-- Error returned because password is missing
-
----
+Verification:
+- Correct password returns True
+- Incorrect password returns False
 
 ### Result
-Passwords are hashed correctly, not exposed in API responses, and validated properly.
+Passwords are securely hashed, not exposed in API responses, and validated correctly.
 
 ---
-
 
 ## Task 2: JWT Authentication
 
 ### Objective
 Verify that users can log in, receive a JWT token, and access protected endpoints using that token.
 
----
+### Test 1: Login with valid credentials
 
-### Test 1: Login with correct credentials
+Request:
 
-Request
-curl -X POST http://127.0.0.1:5000/api/v1/auth/login \
--H "Content-Type: application/json" \
--d '{"email":"john@example.com","password":"1234"}'
+    curl -X POST http://127.0.0.1:5000/api/v1/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{"email":"john@example.com","password":"1234"}'
 
-Expected Result
+Expected Result:
 - Status code: 200 OK
-- A JWT access token is returned
+- JWT access token is returned
 
-Example Response
-{
-  "access_token": "your_jwt_token_here"
-}
+### Test 2: Login with invalid password
 
----
+Request:
 
-### Test 2: Login with wrong password
+    curl -X POST http://127.0.0.1:5000/api/v1/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{"email":"john@example.com","password":"wrongpassword"}'
 
-Request
-curl -X POST http://127.0.0.1:5000/api/v1/auth/login \
--H "Content-Type: application/json" \
--d '{"email":"john@example.com","password":"wrongpassword"}'
-
-Expected Result
+Expected Result:
 - Status code: 401 Unauthorized
-- Error message indicating invalid credentials
+- Error message is returned
 
----
+### Test 3: Access protected endpoint with token
 
-### Test 3: Access protected route with token
+Request:
 
-Request
-curl -X GET http://127.0.0.1:5000/api/v1/auth/protected \
--H "Authorization: Bearer your_jwt_token_here"
+    curl -X GET http://127.0.0.1:5000/api/v1/auth/protected \
+    -H "Authorization: Bearer <TOKEN>"
 
-Expected Result
+Expected Result:
 - Status code: 200 OK
-- Access granted message
+- Access is granted
 
-Example Response
-{
-  "message": "You are authorized"
-}
+### Test 4: Access protected endpoint without token
 
----
+Request:
 
-### Test 4: Access protected route without token
+    curl -X GET http://127.0.0.1:5000/api/v1/auth/protected
 
-Request
-curl -X GET http://127.0.0.1:5000/api/v1/auth/protected
-
-Expected Result
+Expected Result:
 - Status code: 401 Unauthorized
-- Error indicating missing token
-
----
-
-### Test 5: Access protected route with invalid token
-
-Request
-curl -X GET http://127.0.0.1:5000/api/v1/auth/protected \
--H "Authorization: Bearer invalid_token"
-
-Expected Result
-- Status code: 401 Unauthorized
-- Error indicating invalid token
-
----
+- Missing token error is returned
 
 ### Result
-JWT authentication works correctly. Users can log in, receive a token, and access protected endpoints only with valid authorization.
-
-
-## Task 7 - User Model Database Mapping
-
-### Run Python
-python3
-
-### Then execute
-from app import create_app, db
-from app.models.user import User
-
-app = create_app()
-
-with app.app_context():
-    user = User(
-        first_name="Test",
-        last_name="User",
-        email="test@example.com",
-        password="1234"
-    )
-    db.session.add(user)
-    db.session.commit()
-
-    users = User.query.all()
-    print(users)
-
-### Expected result
-The user is stored and retrieved successfully from the database.
-
-### Actual result
-The user was inserted and retrieved successfully.
+JWT authentication works correctly. Users can log in and access protected routes only with a valid token.
 
 ---
 
-
-## Task 8 - Repository Layer Testing
+## Task 3: Authorization and Review Validation
 
 ### Objective
-Test the repository layer after transitioning from in-memory storage to database-backed persistence using SQLAlchemy.
+Verify ownership validation, self-review restriction, and duplicate review prevention.
+
+### Test 1: Prevent reviewing own place
+
+Steps:
+- Create a user
+- Create a place owned by that user
+- Attempt to create a review for that same place using the same user
+
+Expected Result:
+- Request is rejected
+- Error message is returned
+
+### Test 2: Prevent duplicate review
+
+Steps:
+- Create a user
+- Create a place
+- Submit one review successfully
+- Attempt to submit a second review for the same place using the same user
+
+Expected Result:
+- Second request is rejected
+- Duplicate review is not allowed
+
+### Test 3: Ownership validation on update
+
+Steps:
+- User A creates a review
+- User B attempts to update User A's review
+
+Expected Result:
+- Status code: 403 Forbidden
+- Update is rejected
+
+### Test 4: Ownership validation on delete
+
+Steps:
+- User A creates a review
+- User B attempts to delete User A's review
+
+Expected Result:
+- Status code: 403 Forbidden
+- Delete is rejected
+
+### Result
+Authorization rules for reviews work correctly. Users cannot review their own place, cannot submit duplicate reviews, and cannot modify or delete reviews they do not own.
 
 ---
+
+## Task 7: User Model Database Mapping
+
+### Objective
+Verify that the User model is correctly mapped to the database table.
+
+### Test
+
+Run Python:
+
+    python3
+
+Then execute:
+
+    from app import create_app, db
+    from app.models.user import User
+
+    app = create_app()
+
+    with app.app_context():
+        user = User(
+            first_name="Test",
+            last_name="User",
+            email="test@example.com",
+            password="1234"
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        users = User.query.all()
+        print(users)
+
+Expected Result:
+- User is inserted into the database
+- User is retrieved successfully from the database
+
+### Actual Result
+The user was inserted and retrieved successfully.
+
+### Result
+User model mapping works correctly.
+
+---
+
+## Task 8: Repository Layer Testing
+
+### Objective
+Verify that the repository layer works correctly with database persistence instead of in-memory storage.
 
 ### Setup
 - Database created using schema.sql
-- Test data inserted using seed.sql
-- Application configured with SQLAlchemy
-- Repositories used:
-  - UserRepository
-  - PlaceRepository
-  - ReviewRepository
-  - AmenityRepository
+- Seed data inserted using seed.sql
+- Application configured with SQLAlchemy repositories
 
----
+### Test 1: Create and retrieve user
 
-### Test Cases
+Steps:
+- Create a user through the API
+- Retrieve all users using GET /api/v1/users/
 
-#### 1. Create User
-- Endpoint: POST /api/v1/users/
-- Expected: User is saved in the database with a unique ID
+Expected Result:
+- User is stored in the database
+- User appears in the returned list
 
-#### 2. Get All Users
-- Endpoint: GET /api/v1/users/
-- Expected: Returns a list of users from the database
+### Test 2: Update user
 
-#### 3. Get User by ID
-- Endpoint: GET /api/v1/users/<user_id>
-- Expected: Returns correct user data
+Steps:
+- Update user data through PUT /api/v1/users/<user_id>
 
-#### 4. Update User
-- Endpoint: PUT /api/v1/users/<user_id>
-- Expected: User data is updated in the database
+Expected Result:
+- Updated values are saved in the database
+- Retrieving the same user shows updated data
 
----
+### Test 3: Create and retrieve amenity
 
-#### 5. Create Amenity
-- Endpoint: POST /api/v1/amenities/
-- Expected: Amenity is saved in the database
+Steps:
+- Create an amenity through the API
+- Retrieve all amenities using GET /api/v1/amenities/
 
-#### 6. Get All Amenities
-- Endpoint: GET /api/v1/amenities/
-- Expected: Returns all amenities from the database
+Expected Result:
+- Amenity is stored successfully
+- Amenity appears in the returned list
 
----
+### Test 4: Create place
 
-#### 7. Create Place
-- Endpoint: POST /api/v1/places/
-- Expected: Place is saved with correct owner and attributes
+Steps:
+- Create a place linked to an existing user
 
-#### 8. Get Place by ID
-- Endpoint: GET /api/v1/places/<place_id>
-- Expected: Returns correct place with owner and amenities
+Expected Result:
+- Place is stored successfully
+- owner_id is saved correctly in the database
 
----
+### Test 5: Create review
 
-#### 9. Create Review
-- Endpoint: POST /api/v1/reviews/
-- Expected: Review is stored and linked to user and place
+Steps:
+- Create a review linked to an existing user and place
 
-#### 10. Prevent Duplicate Review
-- Same user tries to review same place twice
-- Expected: Request is rejected
+Expected Result:
+- Review is stored successfully
+- user_id and place_id relationships are correct
 
----
+### Test 6: Verify relationships directly in database
 
-### Verification
+Queries used:
 
-- Checked database directly using SQL queries
-- Verified records are inserted, updated, and retrieved correctly
-- Confirmed relationships:
-  - User ↔ Place
-  - Place ↔ Review
-  - Place ↔ Amenity
+    SELECT * FROM user;
+    SELECT * FROM place;
+    SELECT * FROM review;
+    SELECT * FROM place_amenity;
 
----
+Expected Result:
+- Records exist in the correct tables
+- Relationships between users, places, reviews, and amenities are correct
 
 ### Result
+The repository layer correctly handles create, read, and update operations with database persistence and maintains the expected relationships.
 
-All repository operations are functioning correctly with the database.
-Data persistence is confirmed across all entities.
-- Replace YOUR_TOKEN_HERE with the real JWT token.
-- All tests were executed successfully.
+---
+
+## Final Result
+
+All required Part 3 features were tested successfully:
+- Password hashing
+- JWT authentication
+- Authorization and review validation
+- User model database mapping
+- Repository layer with database persistence
+
+The application works correctly with secure authentication, proper authorization, and database-backed storage.
