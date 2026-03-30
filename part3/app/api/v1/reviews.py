@@ -16,7 +16,7 @@ review_model = api.model(
 )
 
 
-@api.route("/")
+@api.route("/<string:review_id>")
 class ReviewList(Resource):
     @api.expect(review_model, validate=True)
     @api.response(201, "Review successfully created")
@@ -37,9 +37,14 @@ class ReviewList(Resource):
             return {"error": "Unauthorized action"}, 403
 
         try:
-            new_review = facade.create_review(review_data)
-        except ValueError as e:
-            return {"error": "Invalid input data", "details": str(e)}, 400
+        new_review = facade.create_review(review_data)
+    except ValueError as e:
+        msg = str(e)
+        if msg in ["User not found", "Place not found"]:
+            return {"error": msg}, 404
+        if msg in ["You cannot review your own place", "Duplicate review not allowed"]:
+            return {"error": msg}, 400
+        return {"error": "Invalid input data", "details": msg}, 400
 
         return {
             "id": new_review.id,
