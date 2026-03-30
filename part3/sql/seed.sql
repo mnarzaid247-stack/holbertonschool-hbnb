@@ -6,7 +6,7 @@ VALUES (
     'Admin',
     'HBnB',
     'admin@hbnb.io',
-    '$2b$12$REPLACE_WITH_REAL_BCRYPT_HASH',
+    '$2b$12$anouBdkyvtFYvqSGwotKieQhSyjExdIyKUPQngFxx2G7b7iWy9tau',
     TRUE
 );
 
