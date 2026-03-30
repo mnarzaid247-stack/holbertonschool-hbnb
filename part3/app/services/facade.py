@@ -90,11 +90,32 @@ class HBnBFacade:
 
     # ---------- Reviews ----------
     def create_review(self, review_data):
+        user_id = review_data.get("user_id")
+        place_id = review_data.get("place_id")
+
+        user = self.user_repo.get(user_id)
+        if not user:
+            raise ValueError("User not found")
+
+        place = self.place_repo.get(place_id)
+        if not place:
+            raise ValueError("Place not found")
+
+    # Prevent user from reviewing own place
+        if place.owner_id == user_id:
+            raise ValueError("You cannot review your own place")
+
+    # Prevent duplicate review from same user for same place
+        existing_reviews = self.review_repo.get_all()
+        for review in existing_reviews:
+            if review.user_id == user_id and review.place_id == place_id:
+                raise ValueError("Duplicate review not allowed")
+
         review = Review(
             text=review_data.get("text"),
             rating=review_data.get("rating"),
-            user_id=review_data.get("user_id"),
-            place_id=review_data.get("place_id"),
+            user_id=user_id,
+            place_id=place_id,
         )
         self.review_repo.add(review)
         return review
