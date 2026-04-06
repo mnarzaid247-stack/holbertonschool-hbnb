@@ -8,8 +8,10 @@
 </head>
 <body>
     <header>
+        <img src="images/logo.png" class="logo" alt="logo">
         <nav>
-            <a href="login.html" id="login-link">Login</a>
+            <a href="index.html">Home</a>
+            <a href="login.html" id="login-link" class="login-button">Login</a>
         </nav>
     </header>
     <main>
@@ -20,9 +22,16 @@
             </select>
         </section>
         <section id="places-list">
-            <!-- List of places will be populated dynamically -->
+            <div class="place-card">
+            <h3>Place Name</h3>
+            <p>Price: 100$/night</p>
+            <button class="details-button">View Details</button>    
+            </div>
         </section>
     </main>
+    <footer>
+        <p>all rights reserved</p>
+    </footer>
     <script src="scripts.js"></script>
 </body>
 </html>
