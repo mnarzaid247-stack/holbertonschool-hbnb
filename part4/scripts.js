@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const loginForm = document.getElementById("login-form");
+  const loginLink = document.getElementById("login-link");
+  const token = getCookie("token");
 
+  // Login form handling
   if (loginForm) {
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -8,27 +11,29 @@ document.addEventListener("DOMContentLoaded", async () => {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
-      const response = await fetch("http://127.0.0.1:5000/api/v1/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, password })
-      });
+      try {
+        const response = await fetch("http://127.0.0.1:5000/api/v1/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        document.cookie = `token=${data.access_token}; path=/`;
-        window.location.href = "index.html";
-      } else {
-        alert("Login failed: " + response.statusText);
+        if (response.ok) {
+          const data = await response.json();
+          document.cookie = `token=${data.access_token}; path=/`;
+          window.location.href = "index.html";
+        } else {
+          alert("Login failed: " + response.statusText);
+        }
+      } catch (error) {
+        console.error("Login error:", error);
       }
     });
   }
 
-  const loginLink = document.getElementById("login-link");
-  const token = getCookie("token");
-
+  // Show/hide login link
   if (loginLink) {
     if (token) {
       loginLink.style.display = "none";
@@ -37,15 +42,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  // Index page: fetch and display places
   const placesList = document.getElementById("places-list");
-
   if (placesList) {
     try {
       const places = await fetchPlaces(token);
       displayPlaces(places);
       setupPriceFilter(places);
     } catch (error) {
-      console.error(error);
+      console.error("Places error:", error);
+    }
+  }
+
+  // Place details page
+  if (window.location.pathname.includes("place.html")) {
+    const params = new URLSearchParams(window.location.search);
+    const placeId = params.get("id");
+
+    const addReviewSection = document.getElementById("add-review");
+    if (addReviewSection) {
+      if (token) {
+        addReviewSection.style.display = "block";
+      } else {
+        addReviewSection.style.display = "none";
+      }
+    }
+
+    if (placeId) {
+      try {
+        await fetchPlaceDetails(placeId, token);
+      } catch (error) {
+        console.error("Place details error:", error);
+      }
     }
   }
 });
@@ -55,6 +83,7 @@ function getCookie(name) {
 
   for (let i = 0; i < cookies.length; i++) {
     const cookie = cookies[i].split("=");
+
     if (cookie[0] === name) {
       return cookie[1];
     }
@@ -64,15 +93,13 @@ function getCookie(name) {
 }
 
 async function fetchPlaces(token) {
-  const headers = {
-    "Content-Type": "application/json"
-  };
+  const headers = {};
 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch("http://127.0.0.1:5000/api/v1/places", {
+  const response = await fetch("http://127.0.0.1:5000/api/v1/places/", {
     method: "GET",
     headers: headers
   });
@@ -92,10 +119,14 @@ function displayPlaces(places) {
     const placeCard = document.createElement("div");
     placeCard.className = "place-card";
 
+    const price = place.price ?? place.price_per_night ?? "N/A";
+
     placeCard.innerHTML = `
       <h3>${place.title}</h3>
-      <p>Price: ${place.price} $/night</p>
-      <button onclick="window.location.href='place.html?id=${place.id}'" class="details-button">View Details</button>
+      <p>Price: ${price} $/night</p>
+      <button class="details-button" onclick="window.location.href='place.html?id=${place.id}'">
+        View Details
+      </button>
     `;
 
     placesList.appendChild(placeCard);
@@ -122,36 +153,18 @@ function setupPriceFilter(places) {
     if (selectedValue === "all") {
       displayPlaces(places);
     } else {
-      const filteredPlaces = places.filter((place) => place.price <= Number(selectedValue));
+      const filteredPlaces = places.filter((place) => {
+        const price = place.price ?? place.price_per_night ?? 0;
+        return price <= Number(selectedValue);
+      });
+
       displayPlaces(filteredPlaces);
     }
   });
 }
-document.addEventListener("DOMContentLoaded", () => {
-  if (window.location.pathname.includes("place.html")) {
-    
-    const params = new URLSearchParams(window.location.search);
-    const placeId = params.get("id");
 
-    console.log("Place ID:", placeId);
-
-    const token = getCookie("token");
-
-    if (token) {
-      console.log("User logged in");
-    } else {
-      console.log("Not logged in");
-    }
-
-  }
-});
-if (placeId) {
-  fetchPlaceDetails(placeId, token);
-}
 async function fetchPlaceDetails(placeId, token) {
-  const headers = {
-    "Content-Type": "application/json"
-  };
+  const headers = {};
 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
@@ -163,10 +176,68 @@ async function fetchPlaceDetails(placeId, token) {
   });
 
   if (!response.ok) {
-    console.error("Failed to fetch place details");
-    return;
+    throw new Error("Failed to fetch place details");
   }
 
   const place = await response.json();
-  console.log(place);
+  displayPlaceDetails(place);
+}
+
+function displayPlaceDetails(place) {
+  const placeDetails = document.getElementById("place-details");
+
+  if (!placeDetails) {
+    return;
+  }
+
+  placeDetails.innerHTML = "";
+
+  const container = document.createElement("div");
+  const price = place.price ?? place.price_per_night ?? "N/A";
+  const description = place.description || "No description available";
+
+  container.innerHTML = `
+    <h2>${place.title}</h2>
+    <p><strong>Price:</strong> ${price} $/night</p>
+    <p><strong>Description:</strong> ${description}</p>
+  `;
+
+  // Amenities
+  if (place.amenities && place.amenities.length > 0) {
+    const amenitiesTitle = document.createElement("h3");
+    amenitiesTitle.textContent = "Amenities";
+    container.appendChild(amenitiesTitle);
+
+    const amenitiesList = document.createElement("ul");
+
+    place.amenities.forEach((amenity) => {
+      const li = document.createElement("li");
+      li.textContent = amenity.name;
+      amenitiesList.appendChild(li);
+    });
+
+    container.appendChild(amenitiesList);
+  }
+
+  // Reviews
+  if (place.reviews && place.reviews.length > 0) {
+    const reviewsTitle = document.createElement("h3");
+    reviewsTitle.textContent = "Reviews";
+    container.appendChild(reviewsTitle);
+
+    place.reviews.forEach((review) => {
+      const reviewCard = document.createElement("div");
+      reviewCard.className = "review-card";
+
+      reviewCard.innerHTML = `
+        <p><strong>User:</strong> ${review.user_name || review.user || "Anonymous"}</p>
+        <p><strong>Rating:</strong> ${review.rating}</p>
+        <p>${review.text}</p>
+      `;
+
+      container.appendChild(reviewCard);
+    });
+  }
+
+  placeDetails.appendChild(container);
 }
