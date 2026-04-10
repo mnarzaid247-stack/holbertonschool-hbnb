@@ -134,7 +134,6 @@ function getUserIdFromToken(token) {
     return null;
   }
 
-  // flask-jwt-extended غالبًا يخزن الهوية في sub
   return payload.sub || payload.identity || null;
 }
 
@@ -357,12 +356,7 @@ function setupReviewForm(token, placeId) {
       if (response.ok) {
         alert("Review submitted successfully!");
         reviewForm.reset();
-
-        if (window.location.pathname.includes("place.html")) {
-          await fetchPlaceDetails(placeId, token);
-        } else {
-          window.location.href = `place.html?id=${placeId}`;
-        }
+        window.location.reload();
       } else {
         const errorData = await response.json().catch(() => null);
 
