@@ -75,6 +75,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("Place details error:", error);
       }
     }
+
+    setupReviewForm(token, placeId);
+  }
+
+  // Optional support for add_review.html if you use it later
+  if (window.location.pathname.includes("add_review.html")) {
+    if (!token) {
+      window.location.href = "index.html";
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const placeId = params.get("id");
+    setupReviewForm(token, placeId);
   }
 });
 
@@ -90,6 +104,38 @@ function getCookie(name) {
   }
 
   return null;
+}
+
+function parseJwt(token) {
+  try {
+    const payload = token.split(".")[1];
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((char) => "%" + ("00" + char.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+
+    return JSON.parse(decoded);
+  } catch (error) {
+    console.error("JWT parse error:", error);
+    return null;
+  }
+}
+
+function getUserIdFromToken(token) {
+  if (!token) {
+    return null;
+  }
+
+  const payload = parseJwt(token);
+  if (!payload) {
+    return null;
+  }
+
+  // flask-jwt-extended غالبًا يخزن الهوية في sub
+  return payload.sub || payload.identity || null;
 }
 
 async function fetchPlaces(token) {
@@ -119,7 +165,11 @@ function displayPlaces(places) {
     const placeCard = document.createElement("div");
     placeCard.className = "place-card";
 
-    const price = place.price ?? place.price_per_night ?? "N/A";
+    const price =
+      place.price ??
+      place.price_per_night ??
+      place.price_by_night ??
+      "N/A";
 
     placeCard.innerHTML = `
       <h3>${place.title}</h3>
@@ -154,7 +204,12 @@ function setupPriceFilter(places) {
       displayPlaces(places);
     } else {
       const filteredPlaces = places.filter((place) => {
-        const price = place.price ?? place.price_per_night ?? 0;
+        const price =
+          place.price ??
+          place.price_per_night ??
+          place.price_by_night ??
+          0;
+
         return price <= Number(selectedValue);
       });
 
@@ -185,59 +240,157 @@ async function fetchPlaceDetails(placeId, token) {
 
 function displayPlaceDetails(place) {
   const placeDetails = document.getElementById("place-details");
+  const reviewsSection = document.getElementById("reviews");
 
-  if (!placeDetails) {
+  if (placeDetails) {
+    placeDetails.innerHTML = "";
+
+    const container = document.createElement("div");
+    container.className = "place-info";
+
+    const price =
+      place.price ??
+      place.price_per_night ??
+      place.price_by_night ??
+      "N/A";
+
+    const description = place.description || "No description available";
+
+    let ownerText = "Unknown";
+    if (place.owner) {
+      const firstName = place.owner.first_name || "";
+      const lastName = place.owner.last_name || "";
+      ownerText = `${firstName} ${lastName}`.trim() || "Unknown";
+    }
+
+    container.innerHTML = `
+      <h2>${place.title}</h2>
+      <p><strong>Host:</strong> ${ownerText}</p>
+      <p><strong>Price:</strong> ${price} $/night</p>
+      <p><strong>Description:</strong> ${description}</p>
+    `;
+
+    if (place.amenities && place.amenities.length > 0) {
+      const amenitiesTitle = document.createElement("h3");
+      amenitiesTitle.textContent = "Amenities";
+      container.appendChild(amenitiesTitle);
+
+      const amenitiesList = document.createElement("ul");
+
+      place.amenities.forEach((amenity) => {
+        const li = document.createElement("li");
+        li.textContent = amenity.name;
+        amenitiesList.appendChild(li);
+      });
+
+      container.appendChild(amenitiesList);
+    }
+
+    placeDetails.appendChild(container);
+  }
+
+  if (reviewsSection) {
+    reviewsSection.innerHTML = "";
+
+    if (place.reviews && place.reviews.length > 0) {
+      const reviewsTitle = document.createElement("h3");
+      reviewsTitle.textContent = "Reviews";
+      reviewsSection.appendChild(reviewsTitle);
+
+      place.reviews.forEach((review) => {
+        const reviewCard = document.createElement("div");
+        reviewCard.className = "review-card";
+
+        reviewCard.innerHTML = `
+          <p><strong>User:</strong> ${review.user_name || review.user || review.user_id || "Anonymous"}</p>
+          <p><strong>Rating:</strong> ${review.rating}</p>
+          <p>${review.text}</p>
+        `;
+
+        reviewsSection.appendChild(reviewCard);
+      });
+    }
+  }
+}
+
+function setupReviewForm(token, placeId) {
+  const reviewForm = document.getElementById("review-form");
+
+  if (!reviewForm) {
     return;
   }
 
-  placeDetails.innerHTML = "";
+  reviewForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-  const container = document.createElement("div");
-  const price = place.price ?? place.price_per_night ?? "N/A";
-  const description = place.description || "No description available";
+    if (!token) {
+      window.location.href = "index.html";
+      return;
+    }
 
-  container.innerHTML = `
-    <h2>${place.title}</h2>
-    <p><strong>Price:</strong> ${price} $/night</p>
-    <p><strong>Description:</strong> ${description}</p>
-  `;
+    if (!placeId) {
+      alert("Place ID not found");
+      return;
+    }
 
-  // Amenities
-  if (place.amenities && place.amenities.length > 0) {
-    const amenitiesTitle = document.createElement("h3");
-    amenitiesTitle.textContent = "Amenities";
-    container.appendChild(amenitiesTitle);
+    const reviewTextElement = document.getElementById("review-text");
+    const ratingElement = document.getElementById("rating");
 
-    const amenitiesList = document.createElement("ul");
+    const reviewText = reviewTextElement ? reviewTextElement.value.trim() : "";
+    const rating = ratingElement ? Number(ratingElement.value) : 5;
 
-    place.amenities.forEach((amenity) => {
-      const li = document.createElement("li");
-      li.textContent = amenity.name;
-      amenitiesList.appendChild(li);
-    });
+    if (!reviewText) {
+      alert("Review text is required");
+      return;
+    }
 
-    container.appendChild(amenitiesList);
-  }
+    const userId = getUserIdFromToken(token);
 
-  // Reviews
-  if (place.reviews && place.reviews.length > 0) {
-    const reviewsTitle = document.createElement("h3");
-    reviewsTitle.textContent = "Reviews";
-    container.appendChild(reviewsTitle);
+    if (!userId) {
+      alert("Unable to identify user from token");
+      return;
+    }
 
-    place.reviews.forEach((review) => {
-      const reviewCard = document.createElement("div");
-      reviewCard.className = "review-card";
+    try {
+      const response = await submitReview(token, placeId, reviewText, rating, userId);
 
-      reviewCard.innerHTML = `
-        <p><strong>User:</strong> ${review.user_name || review.user || "Anonymous"}</p>
-        <p><strong>Rating:</strong> ${review.rating}</p>
-        <p>${review.text}</p>
-      `;
+      if (response.ok) {
+        alert("Review submitted successfully!");
+        reviewForm.reset();
 
-      container.appendChild(reviewCard);
-    });
-  }
+        if (window.location.pathname.includes("place.html")) {
+          await fetchPlaceDetails(placeId, token);
+        } else {
+          window.location.href = `place.html?id=${placeId}`;
+        }
+      } else {
+        const errorData = await response.json().catch(() => null);
 
-  placeDetails.appendChild(container);
+        if (errorData && errorData.error) {
+          alert(errorData.error);
+        } else {
+          alert("Failed to submit review");
+        }
+      }
+    } catch (error) {
+      console.error("Review submit error:", error);
+      alert("Failed to submit review");
+    }
+  });
+}
+
+async function submitReview(token, placeId, reviewText, rating, userId) {
+  return await fetch("http://127.0.0.1:5000/api/v1/reviews/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      text: reviewText,
+      rating: rating,
+      user_id: userId,
+      place_id: placeId
+    })
+  });
 }
