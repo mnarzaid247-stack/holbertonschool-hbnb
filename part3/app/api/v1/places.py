@@ -130,6 +130,7 @@ class PlaceList(Resource):
             {
                 "id": p.id,
                 "title": p.title,
+                'price': p.price,
                 "latitude": p.latitude,
                 "longitude": p.longitude
             }
