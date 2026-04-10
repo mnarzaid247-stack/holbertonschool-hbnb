@@ -95,7 +95,7 @@ function displayPlaces(places) {
     placeCard.innerHTML = `
       <h3>${place.title}</h3>
       <p>Price: ${place.price} $/night</p>
-      <button class="details-button">View Details</button>
+      <button onclick="window.location.href='place.html?id=${place.id}'" class="details-button">View Details</button>
     `;
 
     placesList.appendChild(placeCard);
@@ -126,4 +126,47 @@ function setupPriceFilter(places) {
       displayPlaces(filteredPlaces);
     }
   });
+}
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.location.pathname.includes("place.html")) {
+    
+    const params = new URLSearchParams(window.location.search);
+    const placeId = params.get("id");
+
+    console.log("Place ID:", placeId);
+
+    const token = getCookie("token");
+
+    if (token) {
+      console.log("User logged in");
+    } else {
+      console.log("Not logged in");
+    }
+
+  }
+});
+if (placeId) {
+  fetchPlaceDetails(placeId, token);
+}
+async function fetchPlaceDetails(placeId, token) {
+  const headers = {
+    "Content-Type": "application/json"
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`http://127.0.0.1:5000/api/v1/places/${placeId}`, {
+    method: "GET",
+    headers: headers
+  });
+
+  if (!response.ok) {
+    console.error("Failed to fetch place details");
+    return;
+  }
+
+  const place = await response.json();
+  console.log(place);
 }
