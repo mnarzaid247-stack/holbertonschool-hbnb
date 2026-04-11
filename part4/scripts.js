@@ -1,9 +1,10 @@
+// Main entry point - runs when the page is fully loaded
 document.addEventListener("DOMContentLoaded", async () => {
   const loginForm = document.getElementById("login-form");
   const loginLink = document.getElementById("login-link");
   const token = getCookie("token");
 
-  // Login form handling
+  // Handle login form submission
   if (loginForm) {
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -33,7 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Show/hide login link
+  // Show or hide login link depending on user authentication
   if (loginLink) {
     if (token) {
       loginLink.style.display = "none";
@@ -42,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Index page: fetch and display places
+  // Fetch and display places on the index page
   const placesList = document.getElementById("places-list");
   if (placesList) {
     try {
@@ -54,12 +55,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Place details page
+  // Handle place details page logic
   if (window.location.pathname.includes("place.html")) {
     const params = new URLSearchParams(window.location.search);
     const placeId = params.get("id");
 
     const addReviewSection = document.getElementById("add-review");
+
+    // Show add review form only if the user is logged in
     if (addReviewSection) {
       if (token) {
         addReviewSection.style.display = "block";
@@ -68,6 +71,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
 
+    // Fetch selected place details
     if (placeId) {
       try {
         await fetchPlaceDetails(placeId, token);
@@ -76,10 +80,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
 
+    // Setup review form submission
     setupReviewForm(token, placeId);
   }
 
-  // Optional support for add_review.html if you use it later
+  // Optional support if add_review.html is used later
   if (window.location.pathname.includes("add_review.html")) {
     if (!token) {
       window.location.href = "index.html";
@@ -92,6 +97,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
+// Get a cookie value by its name
 function getCookie(name) {
   const cookies = document.cookie.split("; ");
 
@@ -106,6 +112,7 @@ function getCookie(name) {
   return null;
 }
 
+// Decode JWT token payload
 function parseJwt(token) {
   try {
     const payload = token.split(".")[1];
@@ -124,6 +131,7 @@ function parseJwt(token) {
   }
 }
 
+// Extract user ID from JWT token
 function getUserIdFromToken(token) {
   if (!token) {
     return null;
@@ -137,6 +145,7 @@ function getUserIdFromToken(token) {
   return payload.sub || payload.identity || null;
 }
 
+// Fetch all places from the backend API
 async function fetchPlaces(token) {
   const headers = {};
 
@@ -156,6 +165,7 @@ async function fetchPlaces(token) {
   return await response.json();
 }
 
+// Display places on the index page
 function displayPlaces(places) {
   const placesList = document.getElementById("places-list");
   placesList.innerHTML = "";
@@ -182,6 +192,7 @@ function displayPlaces(places) {
   });
 }
 
+// Setup price filtering on the index page
 function setupPriceFilter(places) {
   const priceFilter = document.getElementById("price-filter");
 
@@ -217,6 +228,7 @@ function setupPriceFilter(places) {
   });
 }
 
+// Fetch selected place details from the API
 async function fetchPlaceDetails(placeId, token) {
   const headers = {};
 
@@ -237,6 +249,7 @@ async function fetchPlaceDetails(placeId, token) {
   displayPlaceDetails(place);
 }
 
+// Display selected place details and reviews
 function displayPlaceDetails(place) {
   const placeDetails = document.getElementById("place-details");
   const reviewsSection = document.getElementById("reviews");
@@ -269,6 +282,7 @@ function displayPlaceDetails(place) {
       <p><strong>Description:</strong> ${description}</p>
     `;
 
+    // Display amenities if available
     if (place.amenities && place.amenities.length > 0) {
       const amenitiesTitle = document.createElement("h3");
       amenitiesTitle.textContent = "Amenities";
@@ -291,6 +305,7 @@ function displayPlaceDetails(place) {
   if (reviewsSection) {
     reviewsSection.innerHTML = "";
 
+    // Display reviews if available
     if (place.reviews && place.reviews.length > 0) {
       const reviewsTitle = document.createElement("h3");
       reviewsTitle.textContent = "Reviews";
@@ -312,6 +327,7 @@ function displayPlaceDetails(place) {
   }
 }
 
+// Setup review form submission
 function setupReviewForm(token, placeId) {
   const reviewForm = document.getElementById("review-form");
 
@@ -373,6 +389,7 @@ function setupReviewForm(token, placeId) {
   });
 }
 
+// Send review data to the backend API
 async function submitReview(token, placeId, reviewText, rating, userId) {
   return await fetch("http://127.0.0.1:5000/api/v1/reviews/", {
     method: "POST",
