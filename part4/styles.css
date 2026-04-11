@@ -1,8 +1,4 @@
-/* 
-  This is a SAMPLE File to get you started. Follow the instructions on the project to complete the tasks. 
-  You'll probably need to override some of theese styles.
-*/
-
+/* Reset + Base */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -15,25 +11,119 @@ body {
     color: #333;
 }
 
+/* Header */
 header {
     background-color: #333;
     color: #fff;
-    padding: 1rem;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    height: 50px;
 }
 
 nav a {
     color: #fff;
     text-decoration: none;
     margin-left: 1rem;
+    font-weight: bold;
 }
 
+.login-button {
+    border: 1px solid #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* Main */
 main {
     padding: 2rem;
 }
+
+/* Filter */
+#filter {
+    margin-bottom: 20px;
+}
+
+/* Places list */
+#places-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+/* Cards */
 .place-card,
 .review-card {
     margin: 20px;
-    padding: 10px;
+    padding: 15px;
     border: 1px solid #ddd;
     border-radius: 10px;
+    background-color: #fff;
+    width: 250px;
+}
+
+/* Buttons */
+.details-button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    border: none;
+    background-color: #333;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Place details */
+.place-details {
+    margin-bottom: 20px;
+}
+
+.place-info {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+/* Reviews */
+#reviews {
+    margin-top: 20px;
+}
+
+/* Form */
+.add-review {
+    margin-top: 20px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 300px;
+}
+
+textarea,
+select,
+button {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background-color: #333;
+    color: white;
+    cursor: pointer;
+}
+
+/* Footer */
+footer {
+    margin-top: 40px;
+    text-align: center;
+    padding: 10px;
+    color: #777;
 }
