@@ -15,27 +15,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       const email = emailInput ? emailInput.value.trim() : "";
       const password = passwordInput ? passwordInput.value.trim() : "";
 
-      try {
-        // Send login request to the API
-        const response = await fetch("http://127.0.0.1:5000/api/v1/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ email, password })
-        });
+      // Validate inputs before sending the request
+      if (!email || !password) {
+        alert("Email and password are required.");
+        return;
+      }
 
-        if (response.ok) {
-          // Save JWT token in cookies and redirect to the home page
-          const data = await response.json();
-          document.cookie = `token=${data.access_token}; path=/`;
-          window.location.href = "index.html";
-        } else {
-          alert("Login failed: " + response.statusText);
-        }
+      try {
+        const data = await loginUser(email, password);
+
+        // Save JWT token in cookies and redirect to the home page
+        document.cookie = `token=${data.access_token}; path=/; max-age=3600`;
+        window.location.href = "index.html";
       } catch (error) {
         console.error("Login error:", error);
-        alert("Unable to connect to the server.");
+        alert(error.message || "Unable to connect to the server.");
       }
     });
   }
@@ -149,6 +143,29 @@ function getUserIdFromToken(token) {
   }
 
   return payload.sub || payload.identity || null;
+}
+
+// Send login request and return token data if successful
+async function loginUser(email, password) {
+  const response = await fetch("http://127.0.0.1:5000/api/v1/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email, password })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+
+    if (errorData && errorData.error) {
+      throw new Error(errorData.error);
+    }
+
+    throw new Error("Login failed.");
+  }
+
+  return await response.json();
 }
 
 // Fetch all places from the backend API
