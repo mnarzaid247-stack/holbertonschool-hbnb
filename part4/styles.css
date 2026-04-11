@@ -9,6 +9,7 @@
 body {
     background-color: #f4f4f4;
     color: #333;
+    line-height: 1.5;
 }
 
 /* Header */
@@ -48,6 +49,18 @@ main {
     margin-bottom: 20px;
 }
 
+#filter label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+#price-filter {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #fff;
+}
+
 /* Places list */
 #places-list {
     display: flex;
@@ -64,18 +77,48 @@ main {
     border: 1px solid #ddd;
     border-radius: 10px;
     background-color: #fff;
-    width: 250px;
+    width: 260px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.place-card:hover,
+.review-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.place-card h3,
+.review-card h3 {
+    margin-bottom: 10px;
+    color: #222;
+}
+
+.place-card p,
+.review-card p {
+    margin-bottom: 8px;
+}
+
+.place-card p:last-of-type,
+.review-card p:last-of-type {
+    margin-bottom: 0;
 }
 
 /* Buttons */
 .details-button {
-    margin-top: 10px;
-    padding: 5px 10px;
+    margin-top: 12px;
+    padding: 8px 12px;
     border: none;
     background-color: #333;
     color: #fff;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
+    font-weight: bold;
+}
+
+.details-button:hover,
+button:hover {
+    opacity: 0.9;
 }
 
 /* Place details */
@@ -87,6 +130,29 @@ main {
     background-color: #fff;
     padding: 20px;
     border-radius: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.place-info h2 {
+    margin-bottom: 12px;
+}
+
+.place-info h3 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.place-info p {
+    margin-bottom: 8px;
+}
+
+.place-info ul {
+    padding-left: 20px;
+}
+
+.place-info li {
+    margin-bottom: 5px;
 }
 
 /* Reviews */
@@ -94,18 +160,42 @@ main {
     margin-top: 20px;
 }
 
+#reviews h3 {
+    margin-bottom: 10px;
+}
+
 /* Form */
 .add-review {
     margin-top: 20px;
+}
+
+.add-review h2 {
+    margin-bottom: 10px;
+}
+
+#place-name {
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: #555;
 }
 
 .form {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 300px;
+    width: 320px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
+.form label {
+    font-weight: bold;
+}
+
+input,
 textarea,
 select,
 button {
@@ -114,10 +204,16 @@ button {
     border: 1px solid #ccc;
 }
 
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
 button {
     background-color: #333;
     color: white;
     cursor: pointer;
+    font-weight: bold;
 }
 
 /* Footer */
