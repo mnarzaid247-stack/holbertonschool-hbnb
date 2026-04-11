@@ -1,9 +1,10 @@
-// Main entry point - runs when the page is fully loaded
+// Main entry point: runs after the page content has fully loaded
 document.addEventListener("DOMContentLoaded", async () => {
   const loginForm = document.getElementById("login-form");
   const loginLink = document.getElementById("login-link");
   const token = getCookie("token");
 
+  // Handle login form submission on login.html
   if (loginForm) {
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -15,6 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const password = passwordInput ? passwordInput.value.trim() : "";
 
       try {
+        // Send login request to the API
         const response = await fetch("http://127.0.0.1:5000/api/v1/login", {
           method: "POST",
           headers: {
@@ -24,6 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         if (response.ok) {
+          // Save JWT token in cookies and redirect to the home page
           const data = await response.json();
           document.cookie = `token=${data.access_token}; path=/`;
           window.location.href = "index.html";
@@ -37,10 +40,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // Show login link only when the user is not authenticated
   if (loginLink) {
     loginLink.style.display = token ? "none" : "inline";
   }
-// Fetch and display places on the index page
+
+  // Fetch and display places on the index page
   const placesList = document.getElementById("places-list");
   if (placesList) {
     try {
@@ -53,14 +58,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  // Handle place details page
   if (window.location.pathname.includes("place.html")) {
     const placeId = getPlaceIdFromURL();
     const addReviewSection = document.getElementById("add-review");
 
+    // Show add review form only for authenticated users
     if (addReviewSection) {
       addReviewSection.style.display = token ? "block" : "none";
     }
 
+    // Load selected place details
     if (placeId) {
       try {
         await fetchPlaceDetails(placeId, token);
@@ -72,10 +80,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       showPlaceError("Invalid place ID.");
     }
 
+    // Enable review form submission on place details page
     setupReviewForm(token, placeId);
   }
-// Optional support if add_review.html is used later
+
+  // Optional support for add_review.html if used as a separate page
   if (window.location.pathname.includes("add_review.html")) {
+    // Redirect unauthenticated users to index page
     if (!token) {
       window.location.href = "index.html";
       return;
@@ -85,6 +96,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupReviewForm(token, placeId);
   }
 });
+
 // Get a cookie value by its name
 function getCookie(name) {
   const cookies = document.cookie.split("; ");
@@ -100,10 +112,12 @@ function getCookie(name) {
   return null;
 }
 
+// Extract place ID from the URL query string
 function getPlaceIdFromURL() {
   const params = new URLSearchParams(window.location.search);
   return params.get("id");
 }
+
 // Decode JWT token payload
 function parseJwt(token) {
   try {
@@ -123,6 +137,7 @@ function parseJwt(token) {
   }
 }
 
+// Extract current user ID from JWT token
 function getUserIdFromToken(token) {
   if (!token) {
     return null;
@@ -135,6 +150,7 @@ function getUserIdFromToken(token) {
 
   return payload.sub || payload.identity || null;
 }
+
 // Fetch all places from the backend API
 async function fetchPlaces(token) {
   const headers = {};
@@ -154,7 +170,8 @@ async function fetchPlaces(token) {
 
   return await response.json();
 }
-// Display places on the index page
+
+// Display places dynamically on the index page
 function displayPlaces(places) {
   const placesList = document.getElementById("places-list");
 
@@ -201,7 +218,8 @@ function displayPlaces(places) {
     placesList.appendChild(placeCard);
   });
 }
-// Setup price filtering on the index page
+
+// Set up client-side filtering by maximum price
 function setupPriceFilter(places) {
   const priceFilter = document.getElementById("price-filter");
 
@@ -209,6 +227,7 @@ function setupPriceFilter(places) {
     return;
   }
 
+  // Load the required dropdown options
   priceFilter.innerHTML = `
     <option value="all" selected>All</option>
     <option value="10">10</option>
@@ -216,6 +235,7 @@ function setupPriceFilter(places) {
     <option value="100">100</option>
   `;
 
+  // Filter places without reloading the page
   priceFilter.addEventListener("change", (event) => {
     const selectedValue = event.target.value;
 
@@ -232,6 +252,7 @@ function setupPriceFilter(places) {
     displayPlaces(filteredPlaces);
   });
 }
+
 // Fetch selected place details from the API
 async function fetchPlaceDetails(placeId, token) {
   const headers = {};
@@ -253,6 +274,7 @@ async function fetchPlaceDetails(placeId, token) {
   displayPlaceDetails(place);
 }
 
+// Display selected place information and its reviews
 function displayPlaceDetails(place) {
   const placeDetails = document.getElementById("place-details");
   const reviewsSection = document.getElementById("reviews");
@@ -344,6 +366,7 @@ function displayPlaceDetails(place) {
   }
 }
 
+// Display an error message when place details cannot be loaded
 function showPlaceError(message) {
   const placeDetails = document.getElementById("place-details");
   const reviewsSection = document.getElementById("reviews");
@@ -362,6 +385,7 @@ function showPlaceError(message) {
   }
 }
 
+// Set up review form submission
 function setupReviewForm(token, placeId) {
   const reviewForm = document.getElementById("review-form");
 
@@ -372,11 +396,13 @@ function setupReviewForm(token, placeId) {
   reviewForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
+    // Redirect user if not authenticated
     if (!token) {
       window.location.href = "index.html";
       return;
     }
 
+    // Validate place ID
     if (!placeId) {
       alert("Place ID not found");
       return;
@@ -388,6 +414,7 @@ function setupReviewForm(token, placeId) {
     const reviewText = reviewTextElement ? reviewTextElement.value.trim() : "";
     const rating = ratingElement ? Number(ratingElement.value) : 5;
 
+    // Prevent empty review submission
     if (!reviewText) {
       alert("Review text is required");
       return;
@@ -423,6 +450,7 @@ function setupReviewForm(token, placeId) {
   });
 }
 
+// Send the review data to the backend API
 async function submitReview(token, placeId, reviewText, rating, userId) {
   return await fetch("http://127.0.0.1:5000/api/v1/reviews/", {
     method: "POST",
