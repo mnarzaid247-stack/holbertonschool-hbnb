@@ -45,10 +45,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       const places = await fetchPlaces(token);
       displayPlaces(places);
-      setupPriceFilter(places);
+      setupPriceFilter();
     } catch (error) {
       console.error("Places error:", error);
-      placesList.innerHTML = "<p>Unable to load places.</p>";
+      placesList.innerHTML = "<p style='text-align:center;'>Unable to load places.</p>";
     }
   }
 
@@ -199,7 +199,7 @@ function displayPlaces(places) {
   placesList.innerHTML = "";
 
   if (!places || places.length === 0) {
-    placesList.innerHTML = "<p>No places available.</p>";
+    placesList.innerHTML = "<p style='text-align:center;'>No places available.</p>";
     return;
   }
 
@@ -208,8 +208,11 @@ function displayPlaces(places) {
     placeCard.className = "place-card";
 
     const title = place.title || place.name || "Unnamed Place";
-    const price = place.price ?? place.price_per_night ?? place.price_by_night ?? "N/A";
+    const price = place.price ?? place.price_per_night ?? place.price_by_night ?? 0;
     const description = place.description || "No description available.";
+
+    // Store price inside the card for client-side filtering
+    placeCard.dataset.price = price;
 
     const titleElement = document.createElement("h3");
     titleElement.textContent = title;
@@ -237,7 +240,7 @@ function displayPlaces(places) {
 }
 
 // Set up client-side filtering by maximum price
-function setupPriceFilter(places) {
+function setupPriceFilter() {
   const priceFilter = document.getElementById("price-filter");
 
   if (!priceFilter) {
@@ -252,21 +255,20 @@ function setupPriceFilter(places) {
     <option value="100">100</option>
   `;
 
-  // Filter places without reloading the page
+  // Filter existing cards using style.display
   priceFilter.addEventListener("change", (event) => {
     const selectedValue = event.target.value;
+    const cards = document.querySelectorAll(".place-card");
 
-    if (selectedValue === "all") {
-      displayPlaces(places);
-      return;
-    }
+    cards.forEach((card) => {
+      const price = Number(card.dataset.price);
 
-    const filteredPlaces = places.filter((place) => {
-      const price = place.price ?? place.price_per_night ?? place.price_by_night ?? 0;
-      return Number(price) <= Number(selectedValue);
+      if (selectedValue === "all" || price <= Number(selectedValue)) {
+        card.style.display = "block";
+      } else {
+        card.style.display = "none";
+      }
     });
-
-    displayPlaces(filteredPlaces);
   });
 }
 
