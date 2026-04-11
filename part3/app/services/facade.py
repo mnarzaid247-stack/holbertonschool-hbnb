@@ -146,4 +146,8 @@ class HBnBFacade:
             return False
         self.review_repo.delete(review_id)
         return True
+    
+    def get_reviews_by_place(self, place_id):
+        reviews = self.review_repo.get_all()
+        return [review for review in reviews if review.place_id == place_id]
         
