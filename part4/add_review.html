@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Basic page settings -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Review</title>
@@ -8,6 +9,7 @@
 </head>
 <body>
 
+    <!-- Header with logo and navigation links -->
     <header>
         <img src="images/logo.png" class="logo" alt="logo">
         <nav>
@@ -17,9 +19,14 @@
     </header>
 
     <main>
+        <!-- Review section -->
         <section class="add-review">
             <h2>Add a Review</h2>
 
+            <!-- Small note to identify the selected place -->
+            <p id="place-name">Reviewing selected place</p>
+
+            <!-- Review form -->
             <form id="review-form" class="form">
                 <label for="review-text">Your Review:</label>
                 <textarea id="review-text" name="review-text" required></textarea>
@@ -38,10 +45,12 @@
         </section>
     </main>
 
+    <!-- Footer -->
     <footer>
         <p>All rights reserved.</p>
     </footer>
 
+    <!-- JavaScript file -->
     <script src="scripts.js"></script>
 </body>
 </html>
