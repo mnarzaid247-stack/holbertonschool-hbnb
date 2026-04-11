@@ -81,7 +81,43 @@ Check routes in the code or README instructions inside parts for specific comman
 - Testing and debugging smaller modules  
 - Understanding web app fundamentals
 
+
 ---
+
+## 🌐 Part 4 - Web Client
+
+### Description
+This part implements a simple web client that interacts with the backend API to:
+- Log in users and store authentication tokens
+- Display a list of places
+- View detailed information about a selected place
+- Add reviews for places (only when logged in)
+
+### How to Run
+
+#### Run Backend (Part 3)
+```bash
+cd part3
+python run.py
+```
+
+
+#### Run Frontend (Part 4)
+```
+cd part4
+python -m http.server 8000
+``` 
+
+### Open in Browser
+- http://127.0.0.1:8000/login.html
+- http://127.0.0.1:8000/index.html
+
+### How to Test
+1. Open `login.html` and log in with valid credentials  
+2. Go to `index.html` to view all places  
+3. Click on "View Details" for any place  
+4. Add a review (only works if logged in)
+
 
 ## 🧑‍💻 Author
 
