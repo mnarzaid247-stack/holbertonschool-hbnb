@@ -75,6 +75,25 @@ def place_to_dict(place):
         if a:
             amenities.append({"id": a.id, "name": a.name})
 
+    reviews = []
+    try:
+        place_reviews = facade.get_reviews_by_place(place.id)
+        for review in place_reviews:
+            user = facade.get_user(review.user_id) if getattr(review, "user_id", None) else None
+            reviews.append({
+                "id": review.id,
+                "text": review.text,
+                "rating": review.rating,
+                "user_id": review.user_id,
+                "place_id": review.place_id,
+                "user_name": (
+                    f"{user.first_name} {user.last_name}".strip()
+                    if user else "Anonymous"
+                )
+            })
+    except Exception:
+        reviews = []
+
     return {
         "id": place.id,
         "title": place.title,
@@ -93,6 +112,7 @@ def place_to_dict(place):
             else None
         ),
         "amenities": amenities,
+        "reviews": reviews,
         "is_available": getattr(place, "is_available", True),
     }
 
