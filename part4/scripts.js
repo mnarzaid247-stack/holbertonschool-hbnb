@@ -1,7 +1,37 @@
 const API_BASE_URL = "http://127.0.0.1:5000/api/v1";
 let placesCache = [];
 
+// Dark Mode Management
+function initializeDarkMode() {
+  const savedTheme = localStorage.getItem("theme") || "light";
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+  }
+  
+  const themeToggle = document.getElementById("theme-toggle");
+  if (themeToggle) {
+    themeToggle.addEventListener("click", toggleDarkMode);
+    updateThemeToggleIcon();
+  }
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-mode");
+  const isDarkMode = document.body.classList.contains("dark-mode");
+  localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+  updateThemeToggleIcon();
+}
+
+function updateThemeToggleIcon() {
+  const themeToggle = document.getElementById("theme-toggle");
+  if (themeToggle) {
+    const isDarkMode = document.body.classList.contains("dark-mode");
+    themeToggle.textContent = isDarkMode ? "☀️" : "🌙";
+  }
+}
+
 window.addEventListener("DOMContentLoaded", async () => {
+  initializeDarkMode();
   const token = getCookie("token");
   const loginForm = document.getElementById("login-form");
   const logoutButton = document.getElementById("logout-button");
