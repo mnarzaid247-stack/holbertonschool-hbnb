@@ -1,43 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Basic page settings -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List of Places</title>
+    <title>HBnB · Explore Places</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <!-- Header with logo and navigation -->
     <header>
-        <img src="images/logo.png" class="logo" alt="logo">
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="login.html" id="login-link" class="login-button">Login</a>
-        </nav>
+        <div class="header-inner">
+            <div class="brand">
+                <img src="images/logo.png" class="logo" alt="HBnB logo">
+                <div>
+                    <h1>HBnB</h1>
+                    <p>Find your next great stay.</p>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <a href="index.html" class="nav-link active">Home</a>
+                <a href="login.html" id="login-link" class="nav-link">Login</a>
+                <button id="logout-button" class="nav-link secondary-button">Logout</button>
+            </div>
+        </div>
     </header>
 
     <main>
-        <!-- Price filter -->
-        <div id="filter">
-            <label for="price-filter">Max Price:</label>
-            <select id="price-filter">
-                <!-- Options are added dynamically with JavaScript -->
-            </select>
-        </div>
-
-        <!-- Places list will be loaded here -->
-        <section id="places-list" aria-label="List of places">
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Explore beautiful places, fast.</h2>
+                <p>Browse curated stays with simple filters, quick navigation, and review support.</p>
+            </div>
+            <div class="hero-panel">
+                <div class="search-box">
+                    <label for="search-input">Search places</label>
+                    <input id="search-input" type="search" placeholder="Search by title, description, or location">
+                </div>
+                <div class="filter-box">
+                    <label for="price-filter">Max price</label>
+                    <select id="price-filter" aria-label="Maximum price filter"></select>
+                </div>
+            </div>
         </section>
+
+        <section id="places-list" class="places-grid" aria-label="List of places"></section>
     </main>
 
-    <!-- Footer -->
     <footer>
-        <p>All rights reserved.</p>
+        <p>HBnB · All rights reserved.</p>
     </footer>
 
-    <!-- JavaScript file -->
     <script src="scripts.js"></script>
 </body>
 </html>

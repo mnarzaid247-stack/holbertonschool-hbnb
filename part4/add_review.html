@@ -1,57 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Basic page settings -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Review</title>
+    <title>HBnB · Add Review</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <!-- Header with logo and navigation links -->
     <header>
-        <img src="images/logo.png" class="logo" alt="logo">
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="login.html" id="login-link" class="login-button">Login</a>
-        </nav>
+        <div class="header-inner">
+            <div class="brand">
+                <img src="images/logo.png" class="logo" alt="HBnB logo">
+                <div>
+                    <h1>HBnB</h1>
+                    <p>Share your experience.</p>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="login.html" id="login-link" class="nav-link">Login</a>
+                <button id="logout-button" class="nav-link secondary-button">Logout</button>
+            </div>
+        </div>
     </header>
 
-    <main>
-        <!-- Review section -->
-        <section class="add-review" aria-label="Add review form">
+    <main class="center-page">
+        <section class="card review-card">
             <h2>Add a Review</h2>
-
-            <!-- Selected place information -->
-            <p id="place-name"><strong>Place:</strong> Selected place</p>
-
-            <!-- Review form -->
+            <p id="place-name" class="place-name">Loading place...</p>
             <form id="review-form" class="form">
-                <label for="review-text">Your Review:</label>
+                <label for="review-text">Your Review</label>
                 <textarea id="review-text" name="review-text" required></textarea>
-
-                <label for="rating">Rating:</label>
+                <label for="rating">Rating</label>
                 <select id="rating" name="rating" required>
-                    <option value="" selected disabled>Select rating</option>
+                    <option value="" disabled selected>Select rating</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
                     <option value="4">4</option>
                     <option value="5">5</option>
                 </select>
-
                 <button type="submit">Submit Review</button>
             </form>
         </section>
     </main>
 
-    <!-- Footer -->
     <footer>
-        <p>All rights reserved.</p>
+        <p>HBnB · All rights reserved.</p>
     </footer>
 
-    <!-- JavaScript file -->
     <script src="scripts.js"></script>
 </body>
 </html>
